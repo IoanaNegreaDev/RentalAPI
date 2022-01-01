@@ -11,10 +11,10 @@ namespace RentalAPI.Services
 {
     public class PaymentService:IPaymentService
     {
-        private readonly IPaymentRepository _paymentRepository;
+        private readonly IGenericRepository<Payment> _paymentRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PaymentService(IPaymentRepository paymentRepository,
+        public PaymentService(IGenericRepository<Payment> paymentRepository,
                                    IUnitOfWork unitOfWork)
         {
             this._paymentRepository = paymentRepository;

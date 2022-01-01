@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Persistance.Interfaces
 {
-    public interface IRentableRepository
+    public interface IRentableRepository:IGenericRepository<Rentable>
     {
         public Task<IEnumerable<Rentable>> ListAvailableAsync(int categoryId, DateTime startDate, DateTime endDate);
-        public Task<Rentable> FindByIdAsync(int id);
     }
 }

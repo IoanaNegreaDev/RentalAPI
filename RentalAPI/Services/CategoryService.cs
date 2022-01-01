@@ -25,12 +25,12 @@ namespace RentalAPI.Services
 
         public async Task<Category> FindAsync(int id)
         {
-            return await _categoryRepository.FindAsync(id);
+            return await _categoryRepository.FindByIdAsync(id);
         }
 
         public async Task<Category> FindAsync(string categoryName)
         {
-            return await _categoryRepository.FindAsync(categoryName);
+            return await _categoryRepository.FindByNameAsync(categoryName);
         }
     }
 }

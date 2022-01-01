@@ -11,13 +11,9 @@ namespace RentalAPI.Persistance
         private readonly RentalDbContext _context;
 
         public UnitOfWork(RentalDbContext context)
-        {
-            _context = context;
-        }
+            => _context = context;
 
         public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
+           => await _context.SaveChangesAsync();
     }
 }

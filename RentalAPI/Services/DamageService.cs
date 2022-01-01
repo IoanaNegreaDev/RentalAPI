@@ -11,10 +11,10 @@ namespace RentalAPI.Services
 {
     public class DamageService:IDamageService
     {
-        private readonly IDamageRepository _damageRepository;
+        private readonly IGenericRepository<Damage> _damageRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DamageService( IDamageRepository _damageRepository,
+        public DamageService(IGenericRepository<Damage> _damageRepository,
                                    IUnitOfWork unitOfWork)
         {
             this._damageRepository = _damageRepository;

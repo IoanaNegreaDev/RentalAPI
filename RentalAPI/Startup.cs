@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using RentalAPI.DTO.Mapping;
+using RentalAPI.Models;
 using RentalAPI.Persistance;
 using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
@@ -39,31 +40,30 @@ namespace RentalAPI
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
-
-            services.AddScoped<IRentableRepository, RentableRepository>();
-            services.AddScoped<IRentableService, RentableService>();
+          
+            services.AddScoped<ICurrencyService, CurrencyService>();
+            services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClientService, ClientService>();
 
+            services.AddScoped<IGenericRepository<Damage>, GenericRepository<Damage>>();
+            services.AddScoped<IDamageService, DamageService>();
+
+            services.AddScoped<IRentableRepository, RentableRepository>();
+            services.AddScoped<IRentableService, RentableService>();
+     
             services.AddScoped<IVehicleContractRepository, VehicleContractRepository>();
             services.AddScoped<IVehicleContractService, VehicleContractService>();
 
             services.AddScoped<IVehicleRentalRepository, VehicleRentalRepository>();
             services.AddScoped<IVehicleRentalService, VehicleRentalService>();
-
-            services.AddScoped<IDamageRepository, DamageRepository>();
-            services.AddScoped<IDamageService, DamageService>();
-
+      
             services.AddScoped<IRentalDamageRepository, RentalDamageRepository>();
             services.AddScoped<IRentalDamageService, RentalDamageService>();
 
-
-            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IGenericRepository<Payment>, GenericRepository<Payment>>();
             services.AddScoped<IPaymentService, PaymentService>();
-
-            services.AddScoped<ICurrencyService, CurrencyService>();
-            services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
@@ -84,7 +84,6 @@ namespace RentalAPI
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

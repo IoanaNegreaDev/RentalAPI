@@ -1,15 +1,10 @@
 ﻿using RentalAPI.Models;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Persistance.Interfaces
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository: IGenericRepository<Category>
     {
-        Task<IEnumerable<Category>> ListAsync();
-
-        Task<Category> FindAsync(int id);
-
-        Task<Category> FindAsync(string categoryName);
+        Task<Category> FindByNameAsync(string categoryName);
     }
 }
