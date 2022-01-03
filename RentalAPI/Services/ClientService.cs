@@ -1,75 +1,44 @@
 ﻿using RentalAPI.Models;
 using RentalAPI.Persistance.Interfaces;
+using RentalAPI.Services.OperationStatusEncapsulators;
 using RentalAPI.Services.Interfaces;
-using RentalAPI.Services.OperationStatuses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class ClientService:IClientService
-    {
-        private readonly IClientRepository _clientRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ClientService(IClientRepository clientRepository, IUnitOfWork unitOfWork)
+    public class ClientService:BaseService<Client, IClientRepository>, IClientService
+    {    
+        public ClientService(IClientRepository repository, IUnitOfWork unitOfWork) 
+            : base(repository, unitOfWork)
         {
-            this._clientRepository = clientRepository;
-            this._unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Client>> ListAsync()
+        override public async Task<DbOperationResponse<Client>> UpdateAsync(Client client)
         {
-            return await _clientRepository.ListAsync();
-        }
-
-        public async Task<ClientOperationResponse> AddAsync(Client client)
-        {
-            try
-            {
-                await _clientRepository.AddAsync(client);
-                await _unitOfWork.SaveChangesAsync();
-                return new ClientOperationResponse(client);
-            }
-            catch (Exception ex)
-            {
-                return new ClientOperationResponse("Failed to add client to the database " + ex.Message);
-            }
-        }
-        public async Task<ClientOperationResponse> UpdateAsync(Client client)
-        {
-            var existingClient = await _clientRepository.FindByIdAsync(client.Id);
+            var existingClient = await _repository.FindByIdAsync(client.Id);
 
             if (existingClient == null)
-                return new ClientOperationResponse("Client not found.");
+                return new DbOperationResponse<Client>("Client not found.");
 
             existingClient.Name = client.Name;
             existingClient.Mobile = client.Mobile;
 
             try
             {
-                _clientRepository.Update(existingClient);
+                _repository.Update(existingClient);
                 await _unitOfWork.SaveChangesAsync();
 
-                return new ClientOperationResponse(existingClient);
+                return new DbOperationResponse<Client>(existingClient);
             }
             catch (Exception ex)
             {
                 // Do some logging stuff
-                return new ClientOperationResponse($"An error occurred when updating the client: {ex.Message}");
+                return new DbOperationResponse<Client>($"An error occurred when updating the client: {ex.Message}");
             }
         }
 
-        public async Task<Client> FindByIdAsync(int id)
-        {
-            return await _clientRepository.FindByIdAsync(id);
-        }
         public async Task<Client> FindByNameAsync(string name)
-        {
-            return await _clientRepository.FindByNameAsync(name);
-        }
-
+           => await _repository.FindByNameAsync(name);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using RentalAPI.Models;
-using RentalAPI.Services.DbOperationStatusEncapsulators;
+using RentalAPI.Services.OperationStatusEncapsulators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +7,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface IPaymentService
+    public interface IPaymentService: IBaseService<Payment>
     {
-        public Task<IEnumerable<Payment>> ListAsync();
-        public Task<PaymentOperationResponse> AddAsync(Payment payment);
-        public Task<Payment> FindByIdAsync(int id);
-
     }
 }

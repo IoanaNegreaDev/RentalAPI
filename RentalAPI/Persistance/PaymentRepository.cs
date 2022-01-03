@@ -16,8 +16,8 @@ namespace RentalAPI.Persistance
 
 		override public async Task<IEnumerable<Payment>> ListAsync()
 			=> await _table.Include(item => item.Contract).ThenInclude(item => item.Client)
-										  .Include(item => item.Contract).ThenInclude(item => item.Rentals)
-										  .Include(item => item.Currency)
-										  .ToListAsync();
+						   .Include(item => item.Contract).ThenInclude(item => item.Rentals)
+						   .Include(item => item.Contract).ThenInclude(item => item.Currency)
+						   .ToListAsync();
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace RentalAPI.Persistance.Interfaces
 {
-    public interface IVehicleContractRepository:IGenericRepository<VehicleContract>
+    public interface IContractRepository:IGenericRepository<Contract>
     {
     }
 }

@@ -8,7 +8,6 @@ namespace RentalAPI.DTOs
     public class PaymentCreationDTO
     {
         public int ContractId { get; set; }
-        public string PaymentCurrency { get; set; }
         public float PaidAmountInPaymentCurrency { get; set; }
     }
 }

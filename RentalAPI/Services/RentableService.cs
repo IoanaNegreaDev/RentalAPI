@@ -3,28 +3,18 @@ using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class RentableService:IRentableService
+    public class RentableService: BaseService<Vehicle, IRentableRepository>, IRentableService
     {
-        private readonly IRentableRepository _rentablesRepository;
-
-        public RentableService(IRentableRepository rentablesRepository)
+        public RentableService(IRentableRepository repository, IUnitOfWork unitOfWork)
+          :base (repository, unitOfWork)
         {
-            this._rentablesRepository = rentablesRepository;
         }
 
-        public async Task<IEnumerable<Rentable>> ListAvailableAsync(int categoryId, DateTime startDate, DateTime endDate)
-        {
-            return await _rentablesRepository.ListAvailableAsync(categoryId, startDate, endDate);
-        }
-
-        public async Task<Rentable> FindByIdAsync(int id)
-        {
-            return await _rentablesRepository.FindByIdAsync(id);
-        }
+        public async Task<IEnumerable<Vehicle>> ListAvailableAsync(int categoryId, DateTime startDate, DateTime endDate)
+            => await _repository.ListAvailableAsync(categoryId, startDate, endDate);
     }
 }

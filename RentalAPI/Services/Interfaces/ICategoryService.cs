@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface ICategoryService
+    public interface ICategoryService: IBaseService<Category>
     {
-        Task<IEnumerable<Category>> ListAsync();
-        Task<Category> FindAsync(int id);
-        Task<Category> FindAsync(string categoryName);
+        public Task<Category> FindByNameAsync(string categoryName);
     }
 }

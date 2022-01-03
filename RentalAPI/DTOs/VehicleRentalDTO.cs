@@ -7,8 +7,7 @@ namespace RentalAPI.DTOs
 {
     public class VehicleRentalDTO: RentalDTO
     {
-        public bool? FullTank { get; set; }
-        public double? FullTankPrice { get; set; } // calculated
-
+        public bool FullTank { get; set; }
+        public float FullTankPrice { get; set; } // calculated
     }
 }

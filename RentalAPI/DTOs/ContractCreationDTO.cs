@@ -7,8 +7,8 @@ namespace RentalAPI.DTOs
 {
     public class ContractCreationDTO
     {
-        public int ClientId { get; set; }
-        public float TotalBasePriceInDefaultCurrency { get; set; }
-        public float TotalDamagePriceInDefaultCurrency { get; set; }
+        public string Name { get; set; }
+        public string Mobile { get; set; }
+        public string PaymentCurrency { get; set; }
     }
 }

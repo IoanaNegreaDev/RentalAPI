@@ -49,29 +49,17 @@ namespace RentalAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FuelTypes",
+                name: "Fuels",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PricePerUnit = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FuelTypes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RentalStatuses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RentalStatuses", x => x.Id);
+                    table.PrimaryKey("PK_Fuels", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,8 +69,7 @@ namespace RentalAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClientId = table.Column<int>(type: "int", nullable: false),
-                    TotalBasePriceInDefaultCurrency = table.Column<float>(type: "real", nullable: false),
-                    TotalDamagePriceInDefaultCurrency = table.Column<float>(type: "real", nullable: false)
+                    PaymentCurrencyId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,6 +78,12 @@ namespace RentalAPI.Migrations
                         name: "FK_Contracts_Clients",
                         column: x => x.ClientId,
                         principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Contracts_Currencies",
+                        column: x => x.PaymentCurrencyId,
+                        principalTable: "Currencies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -116,54 +109,12 @@ namespace RentalAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EngineTypes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FuelId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EngineTypes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_EngineTypes_FuelTypes",
-                        column: x => x.FuelId,
-                        principalTable: "FuelTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PricesPerFuelUnit",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FuelId = table.Column<int>(type: "int", nullable: false),
-                    PricePerUnit = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PricesPerFuelUnit", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PricesPerFuelUnit_FuelTypes",
-                        column: x => x.FuelId,
-                        principalTable: "FuelTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ContractId = table.Column<int>(type: "int", nullable: false),
-                    PaymentCurrencyId = table.Column<int>(type: "int", nullable: false),
-                    TotalPriceInPaymentCurrency = table.Column<float>(type: "real", nullable: false),
                     PaidAmountInPaymentCurrency = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
@@ -172,30 +123,6 @@ namespace RentalAPI.Migrations
                     table.ForeignKey(
                         name: "FK_Payments_Contracts",
                         column: x => x.ContractId,
-                        principalTable: "Contracts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Payments_Currencies",
-                        column: x => x.PaymentCurrencyId,
-                        principalTable: "Currencies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VehicleContracts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    TotalFullTankPriceInDefaultCurrency = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VehicleContracts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VehicleContracts_Contracts_Id",
-                        column: x => x.Id,
                         principalTable: "Contracts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -259,9 +186,7 @@ namespace RentalAPI.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ContractId = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
-                    BasePrice = table.Column<float>(type: "real", nullable: false),
-                    DamagePrice = table.Column<float>(type: "real", nullable: false)
+                    BasePrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -278,12 +203,6 @@ namespace RentalAPI.Migrations
                         principalTable: "Rentables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rentals_Statuses",
-                        column: x => x.StatusId,
-                        principalTable: "RentalStatuses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -294,16 +213,16 @@ namespace RentalAPI.Migrations
                     Producer = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RegistrationNumber = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
-                    EngineTypeId = table.Column<int>(type: "int", nullable: false),
+                    FuelId = table.Column<int>(type: "int", nullable: false),
                     TankCapacity = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Vehicles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Vehicles_EngineTypes",
-                        column: x => x.EngineTypeId,
-                        principalTable: "EngineTypes",
+                        name: "FK_Vehicles_Fuels",
+                        column: x => x.FuelId,
+                        principalTable: "Fuels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -345,8 +264,8 @@ namespace RentalAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
-                    FullTank = table.Column<bool>(type: "bit", nullable: true),
-                    FullTankPrice = table.Column<double>(type: "float", nullable: true)
+                    FullTank = table.Column<bool>(type: "bit", nullable: false),
+                    FullTankPrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -429,55 +348,29 @@ namespace RentalAPI.Migrations
                 values: new object[] { 1, "Vehicles" });
 
             migrationBuilder.InsertData(
-                table: "FuelTypes",
-                columns: new[] { "Id", "Name" },
+                table: "Fuels",
+                columns: new[] { "Id", "Name", "PricePerUnit" },
                 values: new object[,]
                 {
-                    { 1, "Diesel" },
-                    { 2, "Gas" },
-                    { 3, "Electricity" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "RentalStatuses",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Reserved" },
-                    { 2, "Active" },
-                    { 3, "Closed" },
-                    { 4, "Overdue" }
+                    { 1, "Diesel", 1.4f },
+                    { 2, "Gas", 1.2f },
+                    { 3, "Electricity", 0.3f }
                 });
 
             migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "DomainId", "Name" },
-                values: new object[,]
-                {
-                    { 1, 1, "Truck" },
-                    { 2, 1, "Minivan" },
-                    { 3, 1, "Sedan" }
-                });
+                values: new object[] { 1, 1, "Truck" });
 
             migrationBuilder.InsertData(
-                table: "EngineTypes",
-                columns: new[] { "Id", "FuelId", "Name" },
-                values: new object[,]
-                {
-                    { 1, 1, "Diesel" },
-                    { 2, 2, "Gas" },
-                    { 3, 2, "Hybrid" }
-                });
+                table: "Categories",
+                columns: new[] { "Id", "DomainId", "Name" },
+                values: new object[] { 2, 1, "Minivan" });
 
             migrationBuilder.InsertData(
-                table: "PricesPerFuelUnit",
-                columns: new[] { "Id", "FuelId", "PricePerUnit" },
-                values: new object[,]
-                {
-                    { 1, 1, 3f },
-                    { 2, 2, 2.9f },
-                    { 3, 3, 0.5f }
-                });
+                table: "Categories",
+                columns: new[] { "Id", "DomainId", "Name" },
+                values: new object[] { 3, 1, "Sedan" });
 
             migrationBuilder.InsertData(
                 table: "Rentables",
@@ -497,7 +390,7 @@ namespace RentalAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Vehicles",
-                columns: new[] { "Id", "EngineTypeId", "Model", "Producer", "RegistrationNumber", "TankCapacity" },
+                columns: new[] { "Id", "FuelId", "Model", "Producer", "RegistrationNumber", "TankCapacity" },
                 values: new object[,]
                 {
                     { 1, 1, "Cargo", "Mercedes", "TM68RNT", 30 },
@@ -552,29 +445,19 @@ namespace RentalAPI.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Contracts_PaymentCurrencyId",
+                table: "Contracts",
+                column: "PaymentCurrencyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Damages_RentableItemId",
                 table: "Damages",
                 column: "RentableItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EngineTypes_FuelId",
-                table: "EngineTypes",
-                column: "FuelId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Payments_ContractId",
                 table: "Payments",
                 column: "ContractId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_PaymentCurrencyId",
-                table: "Payments",
-                column: "PaymentCurrencyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PricesPerFuelUnit_FuelId",
-                table: "PricesPerFuelUnit",
-                column: "FuelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rentables_CategoryId",
@@ -607,14 +490,9 @@ namespace RentalAPI.Migrations
                 column: "RentedItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rentals_StatusId",
-                table: "Rentals",
-                column: "StatusId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Vehicles_EngineTypeId",
+                name: "IX_Vehicles_FuelId",
                 table: "Vehicles",
-                column: "EngineTypeId");
+                column: "FuelId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -626,9 +504,6 @@ namespace RentalAPI.Migrations
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "PricesPerFuelUnit");
-
-            migrationBuilder.DropTable(
                 name: "RentalDamages");
 
             migrationBuilder.DropTable(
@@ -638,13 +513,7 @@ namespace RentalAPI.Migrations
                 name: "Trucks");
 
             migrationBuilder.DropTable(
-                name: "VehicleContracts");
-
-            migrationBuilder.DropTable(
                 name: "VehicleRentals");
-
-            migrationBuilder.DropTable(
-                name: "Currencies");
 
             migrationBuilder.DropTable(
                 name: "Damages");
@@ -656,7 +525,7 @@ namespace RentalAPI.Migrations
                 name: "Rentals");
 
             migrationBuilder.DropTable(
-                name: "EngineTypes");
+                name: "Fuels");
 
             migrationBuilder.DropTable(
                 name: "Contracts");
@@ -665,13 +534,10 @@ namespace RentalAPI.Migrations
                 name: "Rentables");
 
             migrationBuilder.DropTable(
-                name: "RentalStatuses");
-
-            migrationBuilder.DropTable(
-                name: "FuelTypes");
-
-            migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "Currencies");
 
             migrationBuilder.DropTable(
                 name: "Categories");

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface IVehicleRentalService:IBaseService<VehicleRental>
+    public interface IContractService:IBaseService<Contract>
     {
+        public Task<DbOperationResponse<Contract>> UpdatePricesAsync(int contractId);
     }
 }

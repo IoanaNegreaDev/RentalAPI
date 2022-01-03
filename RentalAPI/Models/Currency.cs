@@ -11,6 +11,6 @@ namespace RentalAPI.Models
         public string Name { get; set; }
         public bool Default { get; set; }
 
-        virtual public ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();
+        virtual public ICollection<Contract> Contracts { get; set; } = new HashSet<Contract>();
     }
 }

@@ -23,20 +23,16 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<Currency> Currencies { get; set; }
         public virtual DbSet<Damage> Damages { get; set; }
-        public virtual DbSet<EngineType> EngineTypes { get; set; }
-        public virtual DbSet<FuelType> FuelTypes { get; set; }
+        public virtual DbSet<Fuel> Fuels { get; set; }
         public virtual DbSet<Minivan> Minivans { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
-        public virtual DbSet<PricesPerFuelUnit> PricesPerFuelUnits { get; set; }
         public virtual DbSet<Rentable> Rentables { get; set; }
         public virtual DbSet<Rental> Rentals { get; set; }
         public virtual DbSet<RentalDamage> RentalDamages { get; set; }
-        public virtual DbSet<RentalStatus> RentalStatuses { get; set; }
         public virtual DbSet<Sedan> Sedans { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Truck> Trucks { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
-        public virtual DbSet<VehicleContract> VehicleContracts { get; set; }
         public virtual DbSet<VehicleRental> VehicleRentals { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -76,6 +72,12 @@ namespace RentalAPI.Persistance
                      .HasForeignKey(d => d.ClientId)
                      .OnDelete(DeleteBehavior.ClientSetNull)
                      .HasConstraintName("FK_Contracts_Clients");
+
+                entity.HasOne(d => d.Currency)
+                    .WithMany(p => p.Contracts)
+                    .HasForeignKey(d => d.PaymentCurrencyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Contracts_Currencies");
             });
 
             modelBuilder.Entity<Currency>().ToTable("Currencies");
@@ -98,36 +100,17 @@ namespace RentalAPI.Persistance
                     .HasConstraintName("FK_Damages_Rentables");
             });
 
-            modelBuilder.Entity<EngineType>(entity =>
-            {
-                entity.Property(e => e.Name).IsRequired();
-
-                entity.HasOne(d => d.Fuel)
-                    .WithMany(p => p.EngineTypes)
-                    .HasForeignKey(d => d.FuelId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_EngineTypes_FuelTypes");
-            });
-
-
-            modelBuilder.Entity<EngineType>().HasData
-            (
-                new EngineType { Id = 1, Name = "Diesel", FuelId = 1 },
-                new EngineType { Id = 2, Name = "Gas", FuelId = 2 },
-                new EngineType { Id = 3, Name = "Hybrid", FuelId = 2 }
-            );
-
-            modelBuilder.Entity<FuelType>(entity =>
+            modelBuilder.Entity<Fuel>(entity =>
             {
                 entity.Property(e => e.Name).IsRequired();
             });
 
-            modelBuilder.Entity<FuelType>().HasData
+            modelBuilder.Entity<Fuel>().HasData
             (
-                new FuelType { Id = 1, Name = "Diesel" },
-                new FuelType { Id = 2, Name = "Gas" },
-                new FuelType { Id = 3, Name = "Electricity" }
-            );
+                new Fuel { Id = 1, Name = "Diesel", PricePerUnit = 1.4f },
+                new Fuel { Id = 2, Name = "Gas", PricePerUnit = 1.2f },
+                new Fuel { Id = 3, Name = "Electricity", PricePerUnit = 0.3f }
+            ); ;
 
             modelBuilder.Entity<Minivan>().ToTable("Minivans");
 
@@ -139,7 +122,7 @@ namespace RentalAPI.Persistance
                               Producer = "Volvo",
                               Model = "Fly",
                               RegistrationNumber = "TM24RNT",
-                              EngineTypeId = 1,
+                              FuelId = 1,
                               TankCapacity = 30,
                               PassangersSeatsCount = 8},
                 new Minivan 
@@ -150,7 +133,7 @@ namespace RentalAPI.Persistance
                             Producer = "Dacia",
                             Model = "Thunder",
                             RegistrationNumber = "TM25RNT",
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             TankCapacity = 32,
                             PassangersSeatsCount = 9
                     },
@@ -163,7 +146,7 @@ namespace RentalAPI.Persistance
                             Producer = "Dacia",
                             Model = "Speed",
                             RegistrationNumber = "TM29RNT",
-                            EngineTypeId = 2,
+                            FuelId = 2,
                             TankCapacity = 30,
                             PassangersSeatsCount = 6
                     }
@@ -177,32 +160,7 @@ namespace RentalAPI.Persistance
                     .HasForeignKey(d => d.ContractId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Payments_Contracts");
-
-                entity.HasOne(d => d.Currency)
-                    .WithMany(p => p.Payments)
-                    .HasForeignKey(d => d.PaymentCurrencyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Payments_Currencies");
             });
-
-            modelBuilder.Entity<PricesPerFuelUnit>(entity =>
-            {
-                entity.ToTable("PricesPerFuelUnit");
-
-                entity.HasOne(d => d.Fuel)
-                    .WithMany(p => p.PricesPerFuelUnits)
-                    .HasForeignKey(d => d.FuelId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_PricesPerFuelUnit_FuelTypes");
-            });
-
-            modelBuilder.Entity<PricesPerFuelUnit>().HasData
-            (
-                 new PricesPerFuelUnit { Id = 1, FuelId = 1, PricePerUnit = (float)3 },
-                 new PricesPerFuelUnit { Id = 2, FuelId = 2, PricePerUnit = (float)2.9 },
-                 new PricesPerFuelUnit { Id = 3, FuelId = 3, PricePerUnit = (float)0.5 }
-            );
-
 
             modelBuilder.Entity<Rentable>(entity =>
             {                    
@@ -215,12 +173,6 @@ namespace RentalAPI.Persistance
 
             modelBuilder.Entity<Rental>(entity =>
             {
-             //   entity.Property(prop => prop.BasePrice)
-              //        .ValueGeneratedOnAddOrUpdate();
-
-               // entity.Property(prop => prop.DamagePrice)
-              //        .ValueGeneratedOnAddOrUpdate();
-
                 entity.HasOne(d => d.RentedItem)
                     .WithMany(p => p.Rentals)
                     .HasForeignKey(d => d.RentedItemId)
@@ -231,13 +183,7 @@ namespace RentalAPI.Persistance
                     .WithMany(p => p.Rentals)
                     .HasForeignKey(d => d.ContractId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Rentals_Contracts");
-
-                 entity.HasOne(d => d.Status)
-                    .WithMany(p => p.Rentals)
-                    .HasForeignKey(d => d.StatusId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Rentals_Statuses");
+                    .HasConstraintName("FK_Rentals_Contracts");  
             });
 
             modelBuilder.Entity<RentalDamage>(entity =>
@@ -255,15 +201,6 @@ namespace RentalAPI.Persistance
                     .HasConstraintName("FK_RentalDamages_Damage");
             });
 
-            modelBuilder.Entity<RentalStatus>().ToTable("RentalStatuses");
-            modelBuilder.Entity<RentalStatus>().HasData
-            (
-                new RentalStatus { Id = 1, Name = "Reserved" },
-                new RentalStatus { Id = 2, Name = "Active" },
-                new RentalStatus { Id = 3, Name = "Closed" },
-                new RentalStatus { Id = 4, Name = "Overdue" }
-            );
-
             modelBuilder.Entity<Sedan>().ToTable("Sedans");
 
             modelBuilder.Entity<Sedan>().HasData
@@ -276,7 +213,7 @@ namespace RentalAPI.Persistance
                       Producer = "Peugeot",
                       Model = "Special",
                       RegistrationNumber = "TM98RNT",
-                      EngineTypeId = 2,
+                      FuelId = 2,
                       TankCapacity = 20,
                       Color = "Red"
                   },
@@ -288,7 +225,7 @@ namespace RentalAPI.Persistance
                       Producer = "Dacia",
                       Model = "Logan",
                       RegistrationNumber = "TM10RNT",
-                      EngineTypeId = 2,
+                      FuelId = 2,
                       TankCapacity = 20,
                       Color = "White"
                   },
@@ -301,7 +238,7 @@ namespace RentalAPI.Persistance
                     Producer = "Renault",
                     Model = "Megane",
                     RegistrationNumber = "TM15RNT",
-                    EngineTypeId = 1,
+                    FuelId = 1,
                     TankCapacity = 22,
                     Color = "Black"
                 }
@@ -336,7 +273,7 @@ namespace RentalAPI.Persistance
                     Producer = "Mercedes",
                     Model = "Cargo",
                     RegistrationNumber = "TM68RNT",
-                    EngineTypeId = 1,
+                    FuelId = 1,
                     TankCapacity = 30,
                     CargoCapacity = 20
                 },
@@ -348,7 +285,7 @@ namespace RentalAPI.Persistance
                     Producer = "Volvo",
                     Model = "Jumbo",
                     RegistrationNumber = "TM69RNT",
-                    EngineTypeId = 1,
+                    FuelId = 1,
                     TankCapacity = 30,
                     CargoCapacity = 50
                 },
@@ -360,7 +297,7 @@ namespace RentalAPI.Persistance
                     Producer = "Volvo",
                     Model = "Dumbo",
                     RegistrationNumber = "TM39RNT",
-                    EngineTypeId = 1,
+                    FuelId = 1,
                     TankCapacity = 30,
                     CargoCapacity = 40
                 }
@@ -381,18 +318,12 @@ namespace RentalAPI.Persistance
                     .HasMaxLength(10)
                     .IsFixedLength(true);
 
-                entity.HasOne(d => d.EngineType)
+                entity.HasOne(d => d.Fuel)
                     .WithMany(p => p.Vehicles)
-                    .HasForeignKey(d => d.EngineTypeId)
+                    .HasForeignKey(d => d.FuelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Vehicles_EngineTypes");        
+                    .HasConstraintName("FK_Vehicles_Fuels");        
             });
-
-
-
-
-
-            modelBuilder.Entity<VehicleContract>().ToTable("VehicleContracts");
 
             modelBuilder.Entity<VehicleRental>().ToTable("VehicleRentals");
 

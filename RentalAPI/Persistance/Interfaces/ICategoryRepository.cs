@@ -5,6 +5,6 @@ namespace RentalAPI.Persistance.Interfaces
 {
     public interface ICategoryRepository: IGenericRepository<Category>
     {
-        Task<Category> FindByNameAsync(string categoryName);
+        public Task<Category> FindByNameAsync(string categoryName);
     }
 }

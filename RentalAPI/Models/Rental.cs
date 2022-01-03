@@ -19,17 +19,9 @@ namespace RentalAPI.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ContractId { get; set; }
-        public int StatusId { get; set; } // internal
-
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public float BasePrice { get; set; }// calculated
-    
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public float DamagePrice { get; set;  }// calculated
-
+        public float BasePrice { get; set; }
         public virtual Rentable RentedItem { get; set; } 
         public virtual Contract Contract { get; set; }
-        public virtual RentalStatus Status { get; set; }
         public virtual ICollection<RentalDamage> RentalDamages { get; set; }
     }
 }

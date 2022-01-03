@@ -1,36 +1,19 @@
 ﻿using RentalAPI.Models;
 using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
   
-    public class CategoryService : ICategoryService
+    public class CategoryService : BaseService<Category, ICategoryRepository>, ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
-
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(ICategoryRepository repository, IUnitOfWork unitOfWork) 
+            : base(repository, unitOfWork)
         {
-            this._categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable<Category>> ListAsync()
-        {
-            return await _categoryRepository.ListAsync();
-        }
-
-        public async Task<Category> FindAsync(int id)
-        {
-            return await _categoryRepository.FindByIdAsync(id);
-        }
-
-        public async Task<Category> FindAsync(string categoryName)
-        {
-            return await _categoryRepository.FindByNameAsync(categoryName);
-        }
+        public async Task<Category> FindByNameAsync(string categoryName)
+              => await _repository.FindByNameAsync(categoryName); 
     }
 }

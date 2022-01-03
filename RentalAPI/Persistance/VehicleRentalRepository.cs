@@ -13,9 +13,16 @@ namespace RentalAPI.Persistance
 		public VehicleRentalRepository(RentalDbContext context) : base(context)
 		{ }
 
+		override public async Task<IEnumerable<VehicleRental>> ListAsync()
+			=> await _table
+						.Include(item=>item.RentedItem).ThenInclude(item => ((Vehicle)item).Fuel)
+						.Include(item=>item.RentalDamages).ThenInclude(item =>item.Damage)
+						.ToListAsync();
 		override public async Task<VehicleRental> FindByIdAsync(int id)
-			=> await _table.Include(item => item.RentalDamages)
-												.ThenInclude(item => item.Damage)
-												.Where(item => item.Id == id).FirstOrDefaultAsync();
+			=> await _table.Where(item => item.Id == id)
+					.Include(item => item.RentalDamages)
+						.ThenInclude(item => item.Damage)
+					.Include(item=> item.RentedItem)
+					.FirstOrDefaultAsync();
 	}
 }

@@ -46,19 +46,20 @@ namespace RentalAPI
 
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClientService, ClientService>();
-
-            services.AddScoped<IGenericRepository<Damage>, GenericRepository<Damage>>();
+            
+            services.AddScoped<IDamageRepository, DamageRepository>();
             services.AddScoped<IDamageService, DamageService>();
 
             services.AddScoped<IRentableRepository, RentableRepository>();
             services.AddScoped<IRentableService, RentableService>();
      
-            services.AddScoped<IVehicleContractRepository, VehicleContractRepository>();
-            services.AddScoped<IVehicleContractService, VehicleContractService>();
+            services.AddScoped<IContractRepository, ContractRepository>();
+            services.AddScoped<IContractService, ContractService>();
 
+           
             services.AddScoped<IVehicleRentalRepository, VehicleRentalRepository>();
             services.AddScoped<IVehicleRentalService, VehicleRentalService>();
-      
+
             services.AddScoped<IRentalDamageRepository, RentalDamageRepository>();
             services.AddScoped<IRentalDamageService, RentalDamageService>();
 

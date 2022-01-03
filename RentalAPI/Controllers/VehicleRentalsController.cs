@@ -15,12 +15,12 @@ namespace RentalAPI.Controllers
     public class VehicleRentalsController : Controller
     {
         private readonly IVehicleRentalService _rentalService;
-        private readonly IVehicleContractService _contractService;
+        private readonly IContractService _contractService;
         private readonly IRentableService _rentableService;
 
         private readonly IMapper _mapper;
         public VehicleRentalsController(IVehicleRentalService rentalService,
-                                        IVehicleContractService contractService,
+                                        IContractService contractService,
                                         IRentableService rentableService,
                                         IMapper mapper)
         {
@@ -45,37 +45,11 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var dbRentable = await _rentableService.FindByIdAsync(newRental.RentedItemId);
-            if (dbRentable == null)
-                return BadRequest("Failed to find rentable item in database.");
-
-            var dbContract = await _contractService.FindByIdAsync(newRental.ContractId);
-            if (dbContract == null)
-                return BadRequest("Failed to find contract in database.");
-
             var rental = _mapper.Map<RentalCreationDTO, VehicleRental>(newRental);
-            rental.FullTankPrice = dbRentable.PricePerDay * (newRental.EndDate - newRental.StartDate).TotalDays;
-            rental.StatusId = 1;
-            rental.FullTank = false;
+
             var result = await _rentalService.AddAsync(rental);
             if (!result.Success)
                 return BadRequest(result.Message);
-
-            var dbContractUpdated = await _contractService.FindByIdAsync(newRental.ContractId);
-            var totalBasePrice = dbContractUpdated.Rentals.Sum(item => item.BasePrice);
-            dbContractUpdated.TotalBasePriceInDefaultCurrency = totalBasePrice;
-
-            var totalDdamagePrice = dbContractUpdated.Rentals.Sum(item => item.DamagePrice);
-            dbContractUpdated.TotalDamagePriceInDefaultCurrency = totalDdamagePrice;
-
-            var vehicleRentals = dbContractUpdated.Rentals.Cast<VehicleRental>();
-            var totalFullTankPrice = vehicleRentals.Sum(item => item.FullTankPrice);
-
-            dbContractUpdated.TotalFullTankPriceInDefaultCurrency = (float)totalFullTankPrice;
-
-            var updateContractResult = await _contractService.UpdateAsync(dbContractUpdated);
-            if (!updateContractResult.Success)
-                return BadRequest(updateContractResult.Message);
 
             var resource = _mapper.Map<VehicleRental, VehicleRentalDTO>(result._entity);
 

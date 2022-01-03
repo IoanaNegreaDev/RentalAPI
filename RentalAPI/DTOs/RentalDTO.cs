@@ -12,7 +12,6 @@ namespace RentalAPI.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ContractId { get; set; }
-        public int StatusId { get; set; } // internal
         public float BasePrice { get; set; } // calculated
         public float DamagePrice { get; set; }// calculated
     }

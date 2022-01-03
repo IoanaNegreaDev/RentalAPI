@@ -1,84 +1,82 @@
 ﻿using RentalAPI.Models;
 using RentalAPI.Persistance.Interfaces;
-using RentalAPI.Services.DbOperationStatusEncapsulators;
+using RentalAPI.Services.OperationStatusEncapsulators;
 using RentalAPI.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class VehicleRentalService: IVehicleRentalService
+    public class VehicleRentalService: BaseService<VehicleRental, IVehicleRentalRepository>, IVehicleRentalService
     {
-        private readonly IVehicleRentalRepository _rentalRepository;
         private readonly IRentableRepository _rentableRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IContractRepository _contractRepository;
 
-        public VehicleRentalService(IVehicleRentalRepository rentalRepository, 
-                                    IRentableRepository rentableReposotory,
+        public VehicleRentalService(IVehicleRentalRepository repository, 
+                                    IRentableRepository rentableRepository,
+                                    IContractRepository contractRepository,
                                     IUnitOfWork unitOfWork)
+            :base (repository, unitOfWork)
         {
-            this._rentalRepository = rentalRepository;
-            this._rentableRepository = rentableReposotory;
-            this._unitOfWork = unitOfWork;
+            this._rentableRepository = rentableRepository;
+            this._contractRepository = contractRepository;
         }
-
-        public async Task<IEnumerable<VehicleRental>> ListAsync()
+ 
+        override public async Task<DbOperationResponse<VehicleRental>> AddAsync(VehicleRental rental)
         {
-            return await _rentalRepository.ListAsync();
-        }
+            if (rental.StartDate > rental.EndDate)
+                return new DbOperationResponse<VehicleRental>("Start date should be smaller than end date of the rental.");
+            if (rental.StartDate < DateTime.Today)
+                return new DbOperationResponse<VehicleRental>("Start date must be egual or bigger with tomorow's date.");
 
-        public async Task<VehicleRentalOperationResponse> AddAsync(VehicleRental rental)
-        {
+            var rentedItem = await _rentableRepository.FindByIdAsync(rental.RentedItemId);
+            if (rentedItem == null)
+                return new DbOperationResponse<VehicleRental>("Rented Item not found.");
+
+            if (!await _rentableRepository.IsAvailable(rentedItem.Id, rental.StartDate, rental.EndDate))
+                return new DbOperationResponse<VehicleRental>("The item is already rented.");
+           
+            var contract = _contractRepository.FindByIdAsync(rental.ContractId);
+            if (contract == null)
+                return new DbOperationResponse<VehicleRental>("Contract not found.");
+
             try
-            {
-                var rentedItem = await _rentableRepository.FindByIdAsync(rental.RentedItemId);
-                if (rentedItem == null)
-                    return new VehicleRentalOperationResponse("Failed to add rental to the database. RentedItemId not found.");
-
+            {               
                 rental.BasePrice = (float)(rentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
-                rental.DamagePrice = (float)0.0;
-                rental.StatusId = 1;
+                rental.FullTank = false;
+                rental.FullTankPrice = (float)(rentedItem.TankCapacity * rentedItem.Fuel.PricePerUnit);
 
-                await _rentalRepository.AddAsync(rental);
+                await _repository.AddAsync(rental);
                 await _unitOfWork.SaveChangesAsync();
 
-                return new VehicleRentalOperationResponse(rental);
+                return new DbOperationResponse<VehicleRental>(rental);
             }
             catch (Exception ex)
             {
-                return new VehicleRentalOperationResponse("Failed to add rental to the database " + ex.Message);
+                return new DbOperationResponse<VehicleRental>("Failed to add rental to the database " + ex.Message);
             }
         }
 
-        public async Task<VehicleRental> FindByIdAsync(int id)
-        {
-            return await _rentalRepository.FindByIdAsync(id);
-        }
-
-        public async Task<VehicleRentalOperationResponse> UpdateAsync(VehicleRental rental)
+        override public async Task<DbOperationResponse<VehicleRental>> UpdateAsync(VehicleRental rental)
         {
           
-            var existing = await _rentalRepository.FindByIdAsync(rental.Id);
+            var existing = await _repository.FindByIdAsync(rental.Id);
 
             if (existing == null)
-                return new VehicleRentalOperationResponse("Rental not found.");
-
-            existing.DamagePrice = rental.DamagePrice;
-            existing.BasePrice = rental.BasePrice;
+                return new DbOperationResponse<VehicleRental>("Rental not found.");
 
             try
             {
-                _rentalRepository.Update(existing);
+                _repository.Update(existing);
                 await _unitOfWork.SaveChangesAsync();
 
-                return new VehicleRentalOperationResponse(existing);
+                return new DbOperationResponse<VehicleRental>(existing);
             }
             catch (Exception ex)
             {
                 // Do some logging stuff
-                return new VehicleRentalOperationResponse($"An error occurred when updating the rental: {ex.Message}");
+                return new DbOperationResponse<VehicleRental>($"An error occurred when updating the rental: {ex.Message}");
             }
         }
     }

@@ -91,15 +91,14 @@ namespace RentalAPI.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<float>("TotalBasePriceInDefaultCurrency")
-                        .HasColumnType("real");
-
-                    b.Property<float>("TotalDamagePriceInDefaultCurrency")
-                        .HasColumnType("real");
+                    b.Property<int>("PaymentCurrencyId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("PaymentCurrencyId");
 
                     b.ToTable("Contracts");
                 });
@@ -189,48 +188,7 @@ namespace RentalAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.EngineType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("FuelId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FuelId");
-
-                    b.ToTable("EngineTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FuelId = 1,
-                            Name = "Diesel"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FuelId = 2,
-                            Name = "Gas"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            FuelId = 2,
-                            Name = "Hybrid"
-                        });
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.FuelType", b =>
+            modelBuilder.Entity("RentalAPI.Models.Fuel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -241,25 +199,31 @@ namespace RentalAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("PricePerUnit")
+                        .HasColumnType("real");
+
                     b.HasKey("Id");
 
-                    b.ToTable("FuelTypes");
+                    b.ToTable("Fuels");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Name = "Diesel"
+                            Name = "Diesel",
+                            PricePerUnit = 1.4f
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Gas"
+                            Name = "Gas",
+                            PricePerUnit = 1.2f
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Electricity"
+                            Name = "Electricity",
+                            PricePerUnit = 0.3f
                         });
                 });
 
@@ -276,59 +240,11 @@ namespace RentalAPI.Migrations
                     b.Property<float>("PaidAmountInPaymentCurrency")
                         .HasColumnType("real");
 
-                    b.Property<int>("PaymentCurrencyId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("TotalPriceInPaymentCurrency")
-                        .HasColumnType("real");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
 
-                    b.HasIndex("PaymentCurrencyId");
-
                     b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.PricesPerFuelUnit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("FuelId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("PricePerUnit")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FuelId");
-
-                    b.ToTable("PricesPerFuelUnit");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FuelId = 1,
-                            PricePerUnit = 3f
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FuelId = 2,
-                            PricePerUnit = 2.9f
-                        },
-                        new
-                        {
-                            Id = 3,
-                            FuelId = 3,
-                            PricePerUnit = 0.5f
-                        });
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
@@ -369,9 +285,6 @@ namespace RentalAPI.Migrations
                     b.Property<int>("ContractId")
                         .HasColumnType("int");
 
-                    b.Property<float>("DamagePrice")
-                        .HasColumnType("real");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -381,16 +294,11 @@ namespace RentalAPI.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
 
                     b.HasIndex("RentedItemId");
-
-                    b.HasIndex("StatusId");
 
                     b.ToTable("Rentals");
                 });
@@ -417,58 +325,11 @@ namespace RentalAPI.Migrations
                     b.ToTable("RentalDamages");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.RentalStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RentalStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Reserved"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Closed"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Overdue"
-                        });
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.VehicleContract", b =>
-                {
-                    b.HasBaseType("RentalAPI.Models.Contract");
-
-                    b.Property<float>("TotalFullTankPriceInDefaultCurrency")
-                        .HasColumnType("real");
-
-                    b.ToTable("VehicleContracts");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
                 {
                     b.HasBaseType("RentalAPI.Models.Rentable");
 
-                    b.Property<int>("EngineTypeId")
+                    b.Property<int>("FuelId")
                         .HasColumnType("int");
 
                     b.Property<string>("Model")
@@ -490,7 +351,7 @@ namespace RentalAPI.Migrations
                     b.Property<int?>("TankCapacity")
                         .HasColumnType("int");
 
-                    b.HasIndex("EngineTypeId");
+                    b.HasIndex("FuelId");
 
                     b.ToTable("Vehicles");
                 });
@@ -499,11 +360,11 @@ namespace RentalAPI.Migrations
                 {
                     b.HasBaseType("RentalAPI.Models.Rental");
 
-                    b.Property<bool?>("FullTank")
+                    b.Property<bool>("FullTank")
                         .HasColumnType("bit");
 
-                    b.Property<double?>("FullTankPrice")
-                        .HasColumnType("float");
+                    b.Property<float>("FullTankPrice")
+                        .HasColumnType("real");
 
                     b.ToTable("VehicleRentals");
                 });
@@ -523,7 +384,7 @@ namespace RentalAPI.Migrations
                             Id = 4,
                             CategoryId = 2,
                             PricePerDay = 30f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Fly",
                             Producer = "Volvo",
                             RegistrationNumber = "TM24RNT",
@@ -535,7 +396,7 @@ namespace RentalAPI.Migrations
                             Id = 5,
                             CategoryId = 2,
                             PricePerDay = 32f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Thunder",
                             Producer = "Dacia",
                             RegistrationNumber = "TM25RNT",
@@ -547,7 +408,7 @@ namespace RentalAPI.Migrations
                             Id = 6,
                             CategoryId = 2,
                             PricePerDay = 20f,
-                            EngineTypeId = 2,
+                            FuelId = 2,
                             Model = "Speed",
                             Producer = "Dacia",
                             RegistrationNumber = "TM29RNT",
@@ -571,7 +432,7 @@ namespace RentalAPI.Migrations
                             Id = 7,
                             CategoryId = 3,
                             PricePerDay = 18f,
-                            EngineTypeId = 2,
+                            FuelId = 2,
                             Model = "Special",
                             Producer = "Peugeot",
                             RegistrationNumber = "TM98RNT",
@@ -583,7 +444,7 @@ namespace RentalAPI.Migrations
                             Id = 8,
                             CategoryId = 3,
                             PricePerDay = 15f,
-                            EngineTypeId = 2,
+                            FuelId = 2,
                             Model = "Logan",
                             Producer = "Dacia",
                             RegistrationNumber = "TM10RNT",
@@ -595,7 +456,7 @@ namespace RentalAPI.Migrations
                             Id = 9,
                             CategoryId = 3,
                             PricePerDay = 16f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Megane",
                             Producer = "Renault",
                             RegistrationNumber = "TM15RNT",
@@ -619,7 +480,7 @@ namespace RentalAPI.Migrations
                             Id = 1,
                             CategoryId = 1,
                             PricePerDay = 27f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Cargo",
                             Producer = "Mercedes",
                             RegistrationNumber = "TM68RNT",
@@ -631,7 +492,7 @@ namespace RentalAPI.Migrations
                             Id = 2,
                             CategoryId = 1,
                             PricePerDay = 37f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Jumbo",
                             Producer = "Volvo",
                             RegistrationNumber = "TM69RNT",
@@ -643,7 +504,7 @@ namespace RentalAPI.Migrations
                             Id = 3,
                             CategoryId = 1,
                             PricePerDay = 31f,
-                            EngineTypeId = 1,
+                            FuelId = 1,
                             Model = "Dumbo",
                             Producer = "Volvo",
                             RegistrationNumber = "TM39RNT",
@@ -671,7 +532,15 @@ namespace RentalAPI.Migrations
                         .HasConstraintName("FK_Contracts_Clients")
                         .IsRequired();
 
+                    b.HasOne("RentalAPI.Models.Currency", "Currency")
+                        .WithMany("Contracts")
+                        .HasForeignKey("PaymentCurrencyId")
+                        .HasConstraintName("FK_Contracts_Currencies")
+                        .IsRequired();
+
                     b.Navigation("Client");
+
+                    b.Navigation("Currency");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Damage", b =>
@@ -685,17 +554,6 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rentable");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.EngineType", b =>
-                {
-                    b.HasOne("RentalAPI.Models.FuelType", "Fuel")
-                        .WithMany("EngineTypes")
-                        .HasForeignKey("FuelId")
-                        .HasConstraintName("FK_EngineTypes_FuelTypes")
-                        .IsRequired();
-
-                    b.Navigation("Fuel");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Payment", b =>
                 {
                     b.HasOne("RentalAPI.Models.Contract", "Contract")
@@ -704,26 +562,7 @@ namespace RentalAPI.Migrations
                         .HasConstraintName("FK_Payments_Contracts")
                         .IsRequired();
 
-                    b.HasOne("RentalAPI.Models.Currency", "Currency")
-                        .WithMany("Payments")
-                        .HasForeignKey("PaymentCurrencyId")
-                        .HasConstraintName("FK_Payments_Currencies")
-                        .IsRequired();
-
                     b.Navigation("Contract");
-
-                    b.Navigation("Currency");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.PricesPerFuelUnit", b =>
-                {
-                    b.HasOne("RentalAPI.Models.FuelType", "Fuel")
-                        .WithMany("PricesPerFuelUnits")
-                        .HasForeignKey("FuelId")
-                        .HasConstraintName("FK_PricesPerFuelUnit_FuelTypes")
-                        .IsRequired();
-
-                    b.Navigation("Fuel");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
@@ -755,17 +594,9 @@ namespace RentalAPI.Migrations
                         .HasConstraintName("FK_Rentals_Rentables")
                         .IsRequired();
 
-                    b.HasOne("RentalAPI.Models.RentalStatus", "Status")
-                        .WithMany("Rentals")
-                        .HasForeignKey("StatusId")
-                        .HasConstraintName("FK_Rentals_Statuses")
-                        .IsRequired();
-
                     b.Navigation("Contract");
 
                     b.Navigation("RentedItem");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.RentalDamage", b =>
@@ -787,21 +618,12 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rental");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.VehicleContract", b =>
-                {
-                    b.HasOne("RentalAPI.Models.Contract", null)
-                        .WithOne()
-                        .HasForeignKey("RentalAPI.Models.VehicleContract", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
                 {
-                    b.HasOne("RentalAPI.Models.EngineType", "EngineType")
+                    b.HasOne("RentalAPI.Models.Fuel", "Fuel")
                         .WithMany("Vehicles")
-                        .HasForeignKey("EngineTypeId")
-                        .HasConstraintName("FK_Vehicles_EngineTypes")
+                        .HasForeignKey("FuelId")
+                        .HasConstraintName("FK_Vehicles_Fuels")
                         .IsRequired();
 
                     b.HasOne("RentalAPI.Models.Rentable", null)
@@ -810,7 +632,7 @@ namespace RentalAPI.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.Navigation("EngineType");
+                    b.Navigation("Fuel");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.VehicleRental", b =>
@@ -868,7 +690,7 @@ namespace RentalAPI.Migrations
 
             modelBuilder.Entity("RentalAPI.Models.Currency", b =>
                 {
-                    b.Navigation("Payments");
+                    b.Navigation("Contracts");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Damage", b =>
@@ -883,16 +705,9 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rentables");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.EngineType", b =>
+            modelBuilder.Entity("RentalAPI.Models.Fuel", b =>
                 {
                     b.Navigation("Vehicles");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.FuelType", b =>
-                {
-                    b.Navigation("EngineTypes");
-
-                    b.Navigation("PricesPerFuelUnits");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
@@ -905,11 +720,6 @@ namespace RentalAPI.Migrations
             modelBuilder.Entity("RentalAPI.Models.Rental", b =>
                 {
                     b.Navigation("RentalDamages");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.RentalStatus", b =>
-                {
-                    b.Navigation("Rentals");
                 });
 #pragma warning restore 612, 618
         }

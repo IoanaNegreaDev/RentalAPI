@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Rental",
+    "\\RentalAPI",
+    "\\RentalAPI\\Persistance",
+    "\\RentalAPI\\Persistance\\Interfaces"
+  ],
+  "SelectedNode": "\\RentalAPI\\Startup.cs",
+  "PreviewInSolutionExplorer": false
+}
