@@ -10,7 +10,7 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220103153231_Initial")]
+    [Migration("20220103181619_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,6 +92,12 @@ namespace RentalAPI.Migrations
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("ExchangeRate")
+                        .HasColumnType("real");
 
                     b.Property<int>("PaymentCurrencyId")
                         .HasColumnType("int");
@@ -227,26 +233,6 @@ namespace RentalAPI.Migrations
                             Name = "Electricity",
                             PricePerUnit = 0.3f
                         });
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("PaidAmountInPaymentCurrency")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
@@ -556,17 +542,6 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rentable");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.Payment", b =>
-                {
-                    b.HasOne("RentalAPI.Models.Contract", "Contract")
-                        .WithMany("Payments")
-                        .HasForeignKey("ContractId")
-                        .HasConstraintName("FK_Payments_Contracts")
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
                 {
                     b.HasOne("RentalAPI.Models.Category", "Category")
@@ -685,8 +660,6 @@ namespace RentalAPI.Migrations
 
             modelBuilder.Entity("RentalAPI.Models.Contract", b =>
                 {
-                    b.Navigation("Payments");
-
                     b.Navigation("Rentals");
                 });
 

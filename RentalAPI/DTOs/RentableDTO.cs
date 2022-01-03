@@ -10,8 +10,6 @@ namespace RentalAPI.DTO
         public int Id { get; set; }
         public int CategoryId { get; set; }
         public double PricePerDay { get; set; }
-
-       // public virtual ICollection<RentalDTO> Rentals { get; set; }
     }
 
     public class VehicleDTO: RentableDTO

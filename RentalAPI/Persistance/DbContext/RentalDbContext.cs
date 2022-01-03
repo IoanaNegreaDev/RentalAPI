@@ -25,7 +25,6 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Damage> Damages { get; set; }
         public virtual DbSet<Fuel> Fuels { get; set; }
         public virtual DbSet<Minivan> Minivans { get; set; }
-        public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<Rentable> Rentables { get; set; }
         public virtual DbSet<Rental> Rentals { get; set; }
         public virtual DbSet<RentalDamage> RentalDamages { get; set; }
@@ -151,16 +150,6 @@ namespace RentalAPI.Persistance
                             PassangersSeatsCount = 6
                     }
             );
-
-
-            modelBuilder.Entity<Payment>(entity =>
-            {
-                entity.HasOne(d => d.Contract)
-                    .WithMany(p => p.Payments)
-                    .HasForeignKey(d => d.ContractId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Payments_Contracts");
-            });
 
             modelBuilder.Entity<Rentable>(entity =>
             {                    

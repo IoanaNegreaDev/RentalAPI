@@ -63,9 +63,6 @@ namespace RentalAPI
             services.AddScoped<IRentalDamageRepository, RentalDamageRepository>();
             services.AddScoped<IRentalDamageService, RentalDamageService>();
 
-            services.AddScoped<IGenericRepository<Payment>, GenericRepository<Payment>>();
-            services.AddScoped<IPaymentService, PaymentService>();
-
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
             services.AddControllers().AddNewtonsoftJson(options =>

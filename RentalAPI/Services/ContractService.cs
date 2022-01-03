@@ -13,12 +13,38 @@ namespace RentalAPI.Services
         IContractService
     {
         private ICurrencyRateExchanger _currencyExchanger;
+        private ICurrencyRepository _currencyRepository;
         public ContractService(IContractRepository repository, 
                                       IUnitOfWork unitOfWork, 
-                                      ICurrencyRateExchanger currencyExchanger )
+                                      ICurrencyRateExchanger currencyExchanger,
+                                      ICurrencyRepository currencyRepository)
             :base(repository, unitOfWork)
         {
             _currencyExchanger = currencyExchanger;
+            _currencyRepository = currencyRepository;
+        }
+
+        override public async Task<DbOperationResponse<Contract>> AddAsync(Contract item)
+        {
+            try
+            {
+                var defaultCurrency = _currencyRepository.GetDefaultAsync();
+                var exchangeRateResult = await _currencyExchanger.GetExchangeRate(defaultCurrency.Result.Id,
+                                                                                  item.PaymentCurrencyId);
+                if (!exchangeRateResult.Success)
+                    return new DbOperationResponse<Contract>("Failed to get exchange rate.");
+
+                item.ExchangeRate = exchangeRateResult._entity;
+                item.CreationDate = DateTime.Today;
+
+                await _repository.AddAsync(item);
+                await _unitOfWork.SaveChangesAsync();
+                return new DbOperationResponse<Contract>(item);
+            }
+            catch (Exception ex)
+            {
+                return new DbOperationResponse<Contract>("Failed to add " + typeof(Contract).ToString() + " to the database " + ex.Message);
+            }
         }
 
         public async Task<DbOperationResponse<Contract>> UpdatePricesAsync(int contractId)

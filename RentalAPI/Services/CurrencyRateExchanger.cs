@@ -19,7 +19,7 @@ namespace RentalAPI.Services
         }
 
         private async Task<IRestResponse> GetCurrencyLayerExchangeRateAsync(string sourceCurrency,
-                                                                       string destinationCurrency)
+                                                             string destinationCurrency)
         {
             var client = new RestClient($"http://apilayer.net/api/live" +
                                              $"?access_key=" + _accessToken +
@@ -66,6 +66,26 @@ namespace RentalAPI.Services
             }
 
             return new BasicOperationResponse<float>(amount);
+        }
+
+        public async Task<BasicOperationResponse<float>> GetExchangeRate(int sourceCurrencyId, int destinationCurrencyId)
+        {
+            var sourceCurrency = await _currencyService.FindByIdAsync(sourceCurrencyId);
+            if (sourceCurrency == null)
+                return new BasicOperationResponse<float>("Destination currency not found in database.");
+
+            var destinationCurrency = await _currencyService.FindByIdAsync(destinationCurrencyId);
+            if (destinationCurrency == null)
+                return new BasicOperationResponse<float>("Destination currency not found in database.");
+
+            var response = await GetCurrencyLayerExchangeRateAsync(sourceCurrency.Name, destinationCurrency.Name);
+
+            if (!response.IsSuccessful)
+                return new BasicOperationResponse<float>("Fail to get conversion rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
+
+            var conversionRate = ExtractConversionRateFromResponse(response, sourceCurrency.Name, destinationCurrency.Name);
+
+            return new BasicOperationResponse<float>(conversionRate);
         }
     }
 }

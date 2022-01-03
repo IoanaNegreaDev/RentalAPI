@@ -8,6 +8,7 @@ namespace RentalAPI.Services.Interfaces
 {
     public interface ICurrencyRateExchanger
     {
+        public Task<BasicOperationResponse<float>> GetExchangeRate(int sourceCurrencyId, int destinationCurrencyId);
         public Task<BasicOperationResponse<float>> Convert(string sourceCurrency,
                                     string destinationCurrency,
                                     float amount);

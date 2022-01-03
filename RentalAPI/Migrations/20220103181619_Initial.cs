@@ -69,7 +69,9 @@ namespace RentalAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClientId = table.Column<int>(type: "int", nullable: false),
-                    PaymentCurrencyId = table.Column<int>(type: "int", nullable: false)
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentCurrencyId = table.Column<int>(type: "int", nullable: false),
+                    ExchangeRate = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,26 +106,6 @@ namespace RentalAPI.Migrations
                         name: "FK_Categories_Domains",
                         column: x => x.DomainId,
                         principalTable: "Domains",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ContractId = table.Column<int>(type: "int", nullable: false),
-                    PaidAmountInPaymentCurrency = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Payments_Contracts",
-                        column: x => x.ContractId,
-                        principalTable: "Contracts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -455,11 +437,6 @@ namespace RentalAPI.Migrations
                 column: "RentableItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_ContractId",
-                table: "Payments",
-                column: "ContractId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Rentables_CategoryId",
                 table: "Rentables",
                 column: "CategoryId");
@@ -499,9 +476,6 @@ namespace RentalAPI.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Minivans");
-
-            migrationBuilder.DropTable(
-                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "RentalDamages");

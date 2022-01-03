@@ -16,16 +16,14 @@ namespace RentalAPI.Controllers
     {
         private readonly IRentalDamageService _rentalDamageService;
         private readonly IVehicleRentalService _rentalService;
-        private readonly IContractService _contractService;
         private readonly IMapper _mapper;
         public RentalDamagesController(IRentalDamageService rentalDamageService,
                                         IVehicleRentalService rentalService,
-                                        IContractService contractService,
                                         IMapper mapper)
         {
             _rentalDamageService = rentalDamageService;
             _rentalService = rentalService;
-            _contractService = contractService;
+
             _mapper = mapper;
         }
 
@@ -45,8 +43,8 @@ namespace RentalAPI.Controllers
                 return BadRequest();
             
             var rental = await _rentalService.FindByIdAsync(newDamage.RentalId);
-            if (rental== null)
-                return BadRequest();
+            if (rental == null)
+                return BadRequest("Rental Id not found in database.");
 
             var rentalDamage = new RentalDamage
             {

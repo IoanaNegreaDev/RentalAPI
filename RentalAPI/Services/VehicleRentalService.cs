@@ -46,7 +46,6 @@ namespace RentalAPI.Services
                 rental.BasePrice = (float)(rentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
                 rental.FullTank = false;
                 rental.FullTankPrice = (float)(rentedItem.TankCapacity * rentedItem.Fuel.PricePerUnit);
-
                 await _repository.AddAsync(rental);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -65,6 +64,11 @@ namespace RentalAPI.Services
 
             if (existing == null)
                 return new DbOperationResponse<VehicleRental>("Rental not found.");
+
+            existing.FullTank = rental.FullTank;
+            existing.StartDate = rental.StartDate;
+            existing.EndDate = rental.EndDate;
+            existing.BasePrice = (float)(existing.RentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
 
             try
             {

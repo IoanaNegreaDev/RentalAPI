@@ -7,6 +7,6 @@ namespace RentalAPI.DTOs
 {
     public class VehicleContractDTO:ContractDTO
     {
-        public float TotalFullTankPriceInDefaultCurrency { get; set; }
+        public float TotalFullTankPriceInPaymentCurrency { get; set; }
     }
 }

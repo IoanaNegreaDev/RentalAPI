@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,25 +18,42 @@ namespace RentalAPI.DTO.Mapping
     public class TotalBasePriceResolver : IValueResolver<Contract, ContractDTO, float>
     {
         public float Resolve(Contract source, ContractDTO destination, float member, ResolutionContext context)
-            => source.Rentals.Sum(item => item.BasePrice);
+            => source.Rentals.Sum(item => item.BasePrice) * source.ExchangeRate;
     }
 
     public class TotalDamagePriceResolver : IValueResolver<Contract, ContractDTO, float>
     {
         public float Resolve(Contract source, ContractDTO destination, float member, ResolutionContext context)
-            => source.Rentals.Sum(item => (float)(item.RentalDamages.Sum(item => item.Damage.DamageCost)));
+            => source.Rentals.Sum(item => (float)(item.RentalDamages.Sum(item => item.Damage.DamageCost))) * source.ExchangeRate;
     }
 
     public class TotalFullTankPriceResolver : IValueResolver<Contract, VehicleContractDTO, float>
     {
         public float Resolve(Contract source, VehicleContractDTO destination, float member, ResolutionContext context)
-            => source.Rentals.Where(item => item.GetType().IsSubclassOf(typeof(Vehicle)) &&
-                                         ((VehicleRental)item).FullTank == false)
-                          .Sum(item => ((VehicleRental)item).FullTankPrice);
+            => source.Rentals.Where(item => item.GetType()==typeof(VehicleRental) &&
+                          ((VehicleRental)item).FullTank == false)
+                          .Sum(item => ((VehicleRental)item).FullTankPrice) * source.ExchangeRate;
     }
+    public class TotalPriceResolver : IValueResolver<Contract, ContractDTO, float>
+    {
+        public float Resolve(Contract source, ContractDTO destination, float member, ResolutionContext context)
+        {
+            var basePrice = source.Rentals.Sum(item => item.BasePrice) * source.ExchangeRate;
 
+            var damage = source.Rentals.Sum(item => (float)(item.RentalDamages
+                            .Sum(item => item.Damage.DamageCost))) * source.ExchangeRate;
+
+            var fullTank = source.Rentals.Where(item => item.GetType() == typeof(VehicleRental) &&
+                          ((VehicleRental)item).FullTank == false)
+                          .Sum(item => ((VehicleRental)item).FullTankPrice) * source.ExchangeRate;
+
+            return basePrice + damage + fullTank;
+        }
+    }
+  
     public class ModelToDTO : Profile
     {
+
         public ModelToDTO()
         {
             CreateMap<Rentable, RentableDTO>().IncludeAllDerived();
@@ -58,19 +76,19 @@ namespace RentalAPI.DTO.Mapping
 
             CreateMap<ClientCreationDTO, Client>();
 
-            CreateMap<Payment, PaymentDTO>();
-            CreateMap<PaymentDTO, Payment>();
-
+            CreateMap<Currency, CurrencyDTO>();
             CreateMap<ContractCreationDTO, Contract>();
             CreateMap<Contract, ContractDTO>()
-                .ForMember(dest => dest.TotalBasePriceInDefaultCurrency, 
+                .ForMember(dest => dest.TotalBasePriceInPaymentCurrency, 
                             opt => opt.MapFrom(new TotalBasePriceResolver())) 
-                .ForMember(dest => dest.TotalDamagePriceInDefaultCurrency,
+                .ForMember(dest => dest.TotalDamagePriceInPaymentCurrency,
                             opt => opt.MapFrom(new TotalDamagePriceResolver()))
+                .ForMember(dest => dest.TotalPriceInPaymentCurrency,
+                            opt => opt.MapFrom(new TotalPriceResolver()))
                 .IncludeAllDerived();
             CreateMap<ContractDTO, Contract>().IncludeAllDerived();
             CreateMap<Contract, VehicleContractDTO>()
-              .ForMember(dest => dest.TotalFullTankPriceInDefaultCurrency,
+              .ForMember(dest => dest.TotalFullTankPriceInPaymentCurrency,
                           opt => opt.MapFrom(new TotalFullTankPriceResolver()));
 
             CreateMap<RentalCreationDTO, VehicleRental>();

@@ -20,6 +20,7 @@ namespace RentalAPI.Models
         public DateTime EndDate { get; set; }
         public int ContractId { get; set; }
         public float BasePrice { get; set; }
+
         public virtual Rentable RentedItem { get; set; } 
         public virtual Contract Contract { get; set; }
         public virtual ICollection<RentalDamage> RentalDamages { get; set; }
