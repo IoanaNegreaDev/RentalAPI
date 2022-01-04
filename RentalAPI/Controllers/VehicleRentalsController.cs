@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("VehicleRentals")]
+    [Route("api/vehiclerentals")]
     public class VehicleRentalsController : Controller
     {
         private readonly IVehicleRentalService _rentalService;

@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -16,6 +17,7 @@ using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
 using RentalAPI.ValidationFilters;
+
 
 namespace RentalAPI
 {
@@ -41,7 +43,8 @@ namespace RentalAPI
                                options.RegisterValidatorsFromAssemblyContaining<Startup>(); 
                            })
                           .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-                         
+
+                                     
             services.AddDbContext<RentalDbContext>(options =>
                                   options.UseSqlServer(Configuration.GetConnectionString("RentalDbConnection")));
 
@@ -73,9 +76,9 @@ namespace RentalAPI
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
-            services.AddControllers().AddNewtonsoftJson(options =>
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-
+            services.AddControllers().AddNewtonsoftJson();// options =>
+                                    //  options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddOData();
             var mapperConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new ModelToDTO());
@@ -107,7 +110,9 @@ namespace RentalAPI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.EnableDependencyInjection();
+                endpoints.Select().Filter().Expand().Count().OrderBy();
+                endpoints.MapControllers();           
             });
         }
     }

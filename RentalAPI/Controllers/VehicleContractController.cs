@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("VehiclesRentalContracts")]
+    [Route("api/vehiclerentalcontracts")]
     public class VehiclesRentalContractsController : Controller
     {
         private readonly IContractService _contractService;
@@ -27,12 +28,23 @@ namespace RentalAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContractDTO>>> Index()
+        [EnableQuery]
+        public async Task<ActionResult<IEnumerable<ContractDTO>>> Get()
         {
             var result = await _contractService.ListAsync();
-            var resource = _mapper.Map<IEnumerable<Contract>, IEnumerable<VehicleContractDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<Contract>, IEnumerable<VehicleContractDTO>>(result);
         
-            return Ok(resource);
+            return Ok(resultDTO);
+        }
+
+        [HttpGet("{id}")]
+        [EnableQuery]
+        public async Task<ActionResult<ContractDTO>> Get(int id)
+        {
+            var result = await _contractService.FindByIdAsync(id);
+            var resultDTO = _mapper.Map<Contract, VehicleContractDTO>(result);
+
+            return Ok(resultDTO);
         }
 
         [HttpPost]

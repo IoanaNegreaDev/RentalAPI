@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RentalAPI.DTOs;
@@ -13,7 +15,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("Clients")]
+    [Route("api/clients")]
     public class ClientsController : Controller
     {
         private readonly IClientService _clientService;
@@ -25,7 +27,8 @@ namespace RentalAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> Index()
+        [EnableQuery]
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
         {
             var result =  await _clientService.ListAsync();
             var resource = _mapper.Map<IEnumerable<Client>, IEnumerable<ClientDTO>>(result);
@@ -33,7 +36,18 @@ namespace RentalAPI.Controllers
             return Ok(resource);
         }
 
+        [HttpGet("{id}")]
+        [EnableQuery]
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> Get(int id)
+        {
+            var result = await _clientService.FindByIdAsync(id);
+            var resource = _mapper.Map<Client, ClientDTO>(result);
+
+            return Ok(resource);
+        }
+
         [HttpPut]
+        [EnableQuery]
         public async Task<IActionResult> Update(int Id, ClientUpdateDTO clientDTO)
         {
             if (!ModelState.IsValid)

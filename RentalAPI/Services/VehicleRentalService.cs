@@ -30,7 +30,7 @@ namespace RentalAPI.Services
                 return new DbOperationResponse<VehicleRental>("Rented Item not found.");
 
             if (!await _rentableRepository.IsAvailable(rentedItem.Id, rental.StartDate, rental.EndDate))
-                return new DbOperationResponse<VehicleRental>("The item is already rented.");
+                return new DbOperationResponse<VehicleRental>("The item is already rented. Please change item and/or dates.");
            
             var contract = await _contractRepository.FindByIdAsync(rental.ContractId);
             if (contract == null)

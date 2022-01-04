@@ -61,6 +61,10 @@
               "target": "Package",
               "version": "[5.0.13, )"
             },
+            "Microsoft.AspNetCore.OData": {
+              "target": "Package",
+              "version": "[7.5.12, )"
+            },
             "Microsoft.EntityFrameworkCore.Abstractions": {
               "target": "Package",
               "version": "[5.0.13, )"

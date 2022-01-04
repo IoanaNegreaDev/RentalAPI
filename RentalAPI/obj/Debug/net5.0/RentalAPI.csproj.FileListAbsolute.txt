@@ -67,3 +67,7 @@ D:\jOB\Learning\Rental\RentalAPI\obj\Debug\net5.0\RentalAPI.csproj.AssemblyRefer
 D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.dll
 D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.AspNetCore.dll
 D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.DependencyInjectionExtensions.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\Microsoft.AspNetCore.OData.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\Microsoft.OData.Core.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\Microsoft.OData.Edm.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\Microsoft.Spatial.dll

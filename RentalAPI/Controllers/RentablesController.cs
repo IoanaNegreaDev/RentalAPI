@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RentalAPI.DTO;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("Rentables")]
+    [Route("api/rentables")]
     public class RentablesController : Controller
     {
         private readonly IRentableService _rentableService;
@@ -28,14 +29,33 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: Rental
-        [HttpGet("Available")]
-        public async Task<IEnumerable<RentableDTO>> Available(string categoryName,
-                                                        DateTime startDate,
-                                                        DateTime endDate)
+        [HttpGet]
+        [EnableQuery]
+        public async Task<ActionResult<IEnumerable<RentableDTO>>> Get()
         {
-            if (categoryName == null ||
-                categoryName == string.Empty)
+            var result = await _rentableService.ListAsync();
+            var resource = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+
+            return Ok(resource);
+        }
+
+        [HttpGet("{id}")]
+        [EnableQuery]
+        public async Task<ActionResult<RentableDTO>> Get(int id)
+        {
+            var result = await _rentableService.FindByIdAsync(id);
+            var resultDTO = _mapper.Map<Rentable, RentableDTO>(result);
+
+            return Ok(resultDTO);
+        }
+
+        [HttpGet("Available")]
+        [EnableQuery]
+        public async Task<IEnumerable<RentableDTO>> GetAllAvailable(int categoryId,
+                                                 DateTime startDate,
+                                                 DateTime endDate)
+        {
+            if (categoryId<=0)
                 return null;
 
             if (startDate > endDate)
@@ -43,13 +63,9 @@ namespace RentalAPI.Controllers
             if (startDate < DateTime.Today)
                 return null;
 
-            var category = await _categoryService.FindByNameAsync(categoryName);
-            if (category == null)
-                return null;
-
-            var availableRentals = await _rentableService.ListAvailableAsync(category.Id, startDate, endDate);
+            var availableRentals = await _rentableService.ListAvailableAsync(categoryId, startDate, endDate);
 
             return _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(availableRentals);
-        } 
+        }
     }
 }
