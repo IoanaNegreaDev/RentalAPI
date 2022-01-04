@@ -25,11 +25,6 @@ namespace RentalAPI.Services
  
         override public async Task<DbOperationResponse<VehicleRental>> AddAsync(VehicleRental rental)
         {
-            if (rental.StartDate > rental.EndDate)
-                return new DbOperationResponse<VehicleRental>("Start date should be smaller than end date of the rental.");
-            if (rental.StartDate < DateTime.Today)
-                return new DbOperationResponse<VehicleRental>("Start date must be egual or bigger with tomorow's date.");
-
             var rentedItem = await _rentableRepository.FindByIdAsync(rental.RentedItemId);
             if (rentedItem == null)
                 return new DbOperationResponse<VehicleRental>("Rented Item not found.");
@@ -37,15 +32,16 @@ namespace RentalAPI.Services
             if (!await _rentableRepository.IsAvailable(rentedItem.Id, rental.StartDate, rental.EndDate))
                 return new DbOperationResponse<VehicleRental>("The item is already rented.");
            
-            var contract = _contractRepository.FindByIdAsync(rental.ContractId);
+            var contract = await _contractRepository.FindByIdAsync(rental.ContractId);
             if (contract == null)
                 return new DbOperationResponse<VehicleRental>("Contract not found.");
 
+            rental.BasePrice = (float)(rentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
+            rental.FullTank = false;
+            rental.FullTankPrice = (float)(rentedItem.TankCapacity * rentedItem.Fuel.PricePerUnit);
+
             try
-            {               
-                rental.BasePrice = (float)(rentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
-                rental.FullTank = false;
-                rental.FullTankPrice = (float)(rentedItem.TankCapacity * rentedItem.Fuel.PricePerUnit);
+            {              
                 await _repository.AddAsync(rental);
                 await _unitOfWork.SaveChangesAsync();
 

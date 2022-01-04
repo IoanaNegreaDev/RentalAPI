@@ -15,18 +15,11 @@ namespace RentalAPI.Controllers
     public class VehicleRentalsController : Controller
     {
         private readonly IVehicleRentalService _rentalService;
-        private readonly IContractService _contractService;
-        private readonly IRentableService _rentableService;
-
         private readonly IMapper _mapper;
         public VehicleRentalsController(IVehicleRentalService rentalService,
-                                        IContractService contractService,
-                                        IRentableService rentableService,
                                         IMapper mapper)
         {
             _rentalService = rentalService;
-            _contractService = contractService;
-            _rentableService = rentableService;
             _mapper = mapper;
         }
 

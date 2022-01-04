@@ -16,13 +16,15 @@ namespace RentalAPI.Services
 
         override public async Task<DbOperationResponse<Client>> UpdateAsync(Client client)
         {
-            var existingClient = await _repository.FindByIdAsync(client.Id);
+            if (client == null)
+                return new DbOperationResponse<Client>("Client cannot be null.");
 
+            var existingClient = await _repository.FindByIdAsync(client.Id);
             if (existingClient == null)
                 return new DbOperationResponse<Client>("Client not found.");
-
-            existingClient.Name = client.Name;
-            existingClient.Mobile = client.Mobile;
+            
+            existingClient.Name = (client.Name!=string.Empty && client.Name != null) ? client.Name : existingClient.Name;
+            existingClient.Mobile = (client.Mobile != string.Empty && client.Mobile != null) ? client.Mobile : existingClient.Mobile; 
 
             try
             {

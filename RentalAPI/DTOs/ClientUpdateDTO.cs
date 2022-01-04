@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.DTOs
 {
-    public class CurrencyDTO
+    public class ClientUpdateDTO
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-        public bool Default { get; set; }
+        public string Mobile { get; set; }
     }
 }

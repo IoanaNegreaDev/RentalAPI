@@ -15,15 +15,11 @@ namespace RentalAPI.Controllers
     public class RentalDamagesController : Controller
     {
         private readonly IRentalDamageService _rentalDamageService;
-        private readonly IVehicleRentalService _rentalService;
         private readonly IMapper _mapper;
         public RentalDamagesController(IRentalDamageService rentalDamageService,
-                                        IVehicleRentalService rentalService,
                                         IMapper mapper)
         {
             _rentalDamageService = rentalDamageService;
-            _rentalService = rentalService;
-
             _mapper = mapper;
         }
 
@@ -37,31 +33,18 @@ namespace RentalAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(RentalDamageCreationDTO newDamage)
+        public async Task<IActionResult> Add(RentalDamageCreationDTO newDamageDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            
-            var rental = await _rentalService.FindByIdAsync(newDamage.RentalId);
-            if (rental == null)
-                return BadRequest("Rental Id not found in database.");
 
-            var rentalDamage = new RentalDamage
-            {
-                RentalId = newDamage.RentalId,
-                Damage = new Damage
-                {
-                    RentableItemId = newDamage.RentalId,
-                    DamageDescription = newDamage.DamageDescription,
-                    DamageCost = newDamage.DamageCost
-                },
-            };
+            var newDamage = _mapper.Map<RentalDamageCreationDTO, RentalDamage>(newDamageDTO);
 
-            var rentalDamageAddResult = await _rentalDamageService.AddAsync(rentalDamage);
-            if (!rentalDamageAddResult.Success)
-                return BadRequest(rentalDamageAddResult.Message);
+            var addRentalDamageResult = await _rentalDamageService.AddAsync(newDamage);
+            if (!addRentalDamageResult.Success)
+                return BadRequest(addRentalDamageResult.Message);
 
-            var rentalDamageDTOResult = _mapper.Map<RentalDamage, RentalDamageDTO>(rentalDamageAddResult._entity);
+            var rentalDamageDTOResult = _mapper.Map<RentalDamage, RentalDamageDTO>(addRentalDamageResult._entity);
 
             return Ok(rentalDamageDTOResult);
         }

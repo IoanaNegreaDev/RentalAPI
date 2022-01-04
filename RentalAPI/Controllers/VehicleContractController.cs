@@ -6,6 +6,7 @@ using RentalAPI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
@@ -15,9 +16,6 @@ namespace RentalAPI.Controllers
     public class VehiclesRentalContractsController : Controller
     {
         private readonly IContractService _contractService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IClientService _clientService;
-
         private readonly IMapper _mapper;
         public VehiclesRentalContractsController(IContractService contractService,
                                                  IClientService clientService,
@@ -25,8 +23,6 @@ namespace RentalAPI.Controllers
                                                  IMapper mapper)
         {
             _contractService = contractService;
-            _clientService = clientService;
-            _currencyService =currencyService;
             _mapper = mapper;
         }
 
@@ -40,40 +36,21 @@ namespace RentalAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateContractForClient(ContractCreationDTO contractDTO)
+        public async Task<IActionResult> AddContract(ContractCreationDTO contractDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var dbCurrency = await _currencyService.FindByNameAsync(contractDTO.PaymentCurrency);
-            if (dbCurrency == null)
-                return BadRequest("Currency not supported.");
+            var newContract = _mapper.Map<ContractCreationDTO, Contract>(contractDTO);
 
-
-            var dbClient = await _clientService.FindByNameAsync(contractDTO.Name);
-            if (dbClient == null)
-            {
-                dbClient = new Client
-                {
-                    Name = contractDTO.Name,
-                    Mobile = contractDTO.Mobile,
-                };
-            }
-            
-            var newcontract = new Contract
-            {
-                PaymentCurrencyId = dbCurrency.Id,
-                Client = dbClient
-            };
-             
-            var addContractResult = await _contractService.AddAsync(newcontract);
+            var addContractResult = await _contractService.AddAsync(newContract);
 
             if (!addContractResult.Success)
                 return BadRequest(addContractResult.Message);
 
             var resource = _mapper.Map<Contract, VehicleContractDTO>(addContractResult._entity);
 
-            return Ok(resource);
+            return CreatedAtAction(nameof(AddContract), new { id = resource.Id }, resource);
         }
     }
 }

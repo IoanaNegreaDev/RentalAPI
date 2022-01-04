@@ -24,7 +24,6 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: Clients
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Client>>> Index()
         {
@@ -34,38 +33,20 @@ namespace RentalAPI.Controllers
             return Ok(resource);
         }
 
-        // POST: Clients
-    /*    [HttpPost("Add")]
-        public async Task<IActionResult> Add(ClientDTO newClient)
+        [HttpPut]
+        public async Task<IActionResult> Update(int Id, ClientUpdateDTO clientDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var client = _mapper.Map<ClientDTO, Client>(newClient);
-            var result = await _clientService.AddAsync(client);
+            var client = _mapper.Map<ClientUpdateDTO, Client>(clientDTO);
+            client.Id = Id;
+            var updateClientResult = await _clientService.UpdateAsync(client);
 
-            if (!result.Success)
-                return BadRequest(result.Message);
+            if (!updateClientResult.Success)
+                return BadRequest(updateClientResult.Message);
 
-            var resource = _mapper.Map<Client, ClientDTO>(result._entity);
-
-            return Ok(resource);
-        }*/
-
-        // POST: Clients
-        [HttpPut]//("Update")]
-        public async Task<IActionResult> Update(ClientDTO clientDTO)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var client = _mapper.Map<ClientDTO, Client>(clientDTO);
-            var result = await _clientService.AddAsync(client);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            var resource = _mapper.Map<Client, ClientDTO>(result._entity);
+            var resource = _mapper.Map<Client, ClientDTO>(updateClientResult._entity);
 
             return Ok(resource);
         }

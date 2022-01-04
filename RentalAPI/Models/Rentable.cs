@@ -9,17 +9,12 @@ namespace RentalAPI.Models
     [Table("Rentables")]
     public class Rentable
     {
-        public Rentable()
-        {
-            Rentals = new HashSet<Rental>();
-            Damages = new HashSet<Damage>();
-        }
         public int Id { get; init; }
         public int CategoryId { get; set; }
         public float PricePerDay { get; set; }
 
         public virtual Category Category { get; set; }
-        public virtual ICollection<Rental> Rentals { get; set; }
-        public virtual ICollection<Damage> Damages { get; set; }
+        public virtual ICollection<Rental> Rentals { get; set; } = new HashSet<Rental>();
+        public virtual ICollection<Damage> Damages { get; set; } = new HashSet<Damage>();
     }
 }

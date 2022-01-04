@@ -14,20 +14,34 @@ namespace RentalAPI.Services
     {
         private ICurrencyRateExchanger _currencyExchanger;
         private ICurrencyRepository _currencyRepository;
+        private IClientRepository _clientRepository;
         public ContractService(IContractRepository repository, 
                                       IUnitOfWork unitOfWork, 
                                       ICurrencyRateExchanger currencyExchanger,
-                                      ICurrencyRepository currencyRepository)
+                                      ICurrencyRepository currencyRepository,
+                                      IClientRepository clientRepository)
             :base(repository, unitOfWork)
         {
             _currencyExchanger = currencyExchanger;
             _currencyRepository = currencyRepository;
+            _clientRepository = clientRepository;
         }
 
         override public async Task<DbOperationResponse<Contract>> AddAsync(Contract item)
         {
             try
             {
+                var dbCurrency = await _currencyRepository.FindByIdAsync(item.PaymentCurrencyId);
+                if (dbCurrency == null)
+                    return new DbOperationResponse<Contract>("Currency not supported. Check https://localhost:5001/Currencies for supported currencies.");          
+
+                var dbClient = await _clientRepository.FindByNameAsync(item.Client.Name);
+                if (dbClient != null)
+                {
+                    item.ClientId = dbClient.Id;
+                    item.Client = null;
+                }
+
                 var defaultCurrency = _currencyRepository.GetDefaultAsync();
                 var exchangeRateResult = await _currencyExchanger.GetExchangeRate(defaultCurrency.Result.Id,
                                                                                   item.PaymentCurrencyId);
@@ -45,41 +59,6 @@ namespace RentalAPI.Services
             {
                 return new DbOperationResponse<Contract>("Failed to add " + typeof(Contract).ToString() + " to the database " + ex.Message);
             }
-        }
-
-        public async Task<DbOperationResponse<Contract>> UpdatePricesAsync(int contractId)
-        {
-            var dbContract = await FindByIdAsync(contractId);
-            if (dbContract == null)
-                return new DbOperationResponse<Contract>("Contract not found.");
-
-           /* var vehicleRentals = dbContract.Rentals.Cast<VehicleRental>();
-
-            var basePriceInDefaultCurrency = vehicleRentals.Sum(item => item.BasePrice);
-            var damagePriceInDefaultCurrency = vehicleRentals.Sum(item => item.DamagePrice);
-            var fullTankPriceInDefaultCurrency = (float)vehicleRentals.Where(item => item.FullTank == false)
-                                                               .Sum(item => item.FullTankPrice);
-
-            var baseConversionResult = await _currencyExchanger.ConvertFromDefaultCurrency(dbContract.PaymentCurrencyId,
-                                                                     basePriceInDefaultCurrency);
-            if (!baseConversionResult.Success)
-                return new DbOperationResponse<VehicleContract>("Failed to convert base price.");
-
-            var damageConversionResult = await _currencyExchanger.ConvertFromDefaultCurrency(dbContract.PaymentCurrencyId,
-                                                                     damagePriceInDefaultCurrency);
-            if (!damageConversionResult.Success)
-                return new DbOperationResponse<VehicleContract>("Failed to convert damage price.");
-
-            var fullTankConversionResult = await _currencyExchanger.ConvertFromDefaultCurrency(dbContract.PaymentCurrencyId,
-                                                                      fullTankPriceInDefaultCurrency);
-            if (!fullTankConversionResult.Success)
-                return new DbOperationResponse<VehicleContract>("Failed to convert full tank price.");
-
-            dbContract.TotalBasePriceInPaymentCurrency = baseConversionResult._entity;
-            dbContract.TotalDamagePriceInPaymentCurrency = damageConversionResult._entity;
-            dbContract.TotalDamagePriceInPaymentCurrency = fullTankConversionResult._entity;*/
-
-            return new DbOperationResponse<Contract>(dbContract);
         }
 
         override public async Task<DbOperationResponse<Contract>> UpdateAsync(Contract contract)

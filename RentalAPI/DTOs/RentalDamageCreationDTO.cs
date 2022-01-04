@@ -8,7 +8,6 @@ namespace RentalAPI.DTOs
     public class RentalDamageCreationDTO
     {
         public int RentalId { get; set; }
-        public string DamageDescription { get; set; }
-        public float DamageCost { get; set; }
+        public DamageIndirectCreationDTO Damage { get; set;}
     }
 }

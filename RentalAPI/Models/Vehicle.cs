@@ -13,7 +13,7 @@ namespace RentalAPI.Models
         public string Model { get; set; }
         public string RegistrationNumber { get; set; }
         public int FuelId { get; set; }
-        public int? TankCapacity { get; set; }
+        public int TankCapacity { get; set; }
 
         public virtual Fuel Fuel { get; set; }
       }

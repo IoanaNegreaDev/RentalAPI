@@ -7,8 +7,7 @@ namespace RentalAPI.DTOs
 {
     public class ContractCreationDTO
     {
-        public string Name { get; set; }
-        public string Mobile { get; set; }
-        public string PaymentCurrency { get; set; }
+        public virtual ClientCreationDTO Client { get; set; }
+        public int PaymentCurrencyId { get; set; }
     }
 }

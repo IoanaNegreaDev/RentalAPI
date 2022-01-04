@@ -64,3 +64,6 @@ D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\AutoMapper.dll
 D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\RestSharp.dll
 D:\jOB\Learning\Rental\RentalAPI\obj\Debug\net5.0\RentalAPI.csproj.AssemblyReference.cache
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.AspNetCore.dll
+D:\jOB\Learning\Rental\RentalAPI\bin\Debug\net5.0\FluentValidation.DependencyInjectionExtensions.dll

@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -9,12 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using RentalAPI.DTO.Mapping;
-using RentalAPI.Models;
+using RentalAPI.Mapping;
 using RentalAPI.Persistance;
 using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
+using RentalAPI.ValidationFilters;
 
 namespace RentalAPI
 {
@@ -30,9 +31,17 @@ namespace RentalAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(option => option.EnableEndpointRouting = false)
-                           .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            services.AddMvc(options =>
+                           {
+                                options.EnableEndpointRouting = false;
+                                options.Filters.Add(new ValidationFilter());
+                           })
+                          .AddFluentValidation(options => 
+                           { 
+                               options.RegisterValidatorsFromAssemblyContaining<Startup>(); 
+                           })
+                          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                         
             services.AddDbContext<RentalDbContext>(options =>
                                   options.UseSqlServer(Configuration.GetConnectionString("RentalDbConnection")));
 
@@ -55,7 +64,6 @@ namespace RentalAPI
      
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IContractService, ContractService>();
-
            
             services.AddScoped<IVehicleRentalRepository, VehicleRentalRepository>();
             services.AddScoped<IVehicleRentalService, VehicleRentalService>();
