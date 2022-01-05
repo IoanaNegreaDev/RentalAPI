@@ -33,6 +33,7 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Truck> Trucks { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<VehicleRental> VehicleRentals { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -315,6 +316,12 @@ namespace RentalAPI.Persistance
             });
 
             modelBuilder.Entity<VehicleRental>().ToTable("VehicleRentals");
+
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<User>().HasData
+            (
+                new User { Id = 1, UserName = "Administrator", Password = "Administrator"}
+            );
 
             OnModelCreatingPartial(modelBuilder);
         }

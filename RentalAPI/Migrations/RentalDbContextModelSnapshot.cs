@@ -311,6 +311,32 @@ namespace RentalAPI.Migrations
                     b.ToTable("RentalDamages");
                 });
 
+            modelBuilder.Entity("RentalAPI.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Password = "Administrator",
+                            UserName = "Administrator"
+                        });
+                });
+
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
                 {
                     b.HasBaseType("RentalAPI.Models.Rentable");

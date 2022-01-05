@@ -10,7 +10,7 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220103181619_Initial")]
+    [Migration("20220105220438_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -313,6 +313,32 @@ namespace RentalAPI.Migrations
                     b.ToTable("RentalDamages");
                 });
 
+            modelBuilder.Entity("RentalAPI.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Password = "Administrator",
+                            UserName = "Administrator"
+                        });
+                });
+
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
                 {
                     b.HasBaseType("RentalAPI.Models.Rentable");
@@ -336,7 +362,7 @@ namespace RentalAPI.Migrations
                         .HasColumnType("nchar(10)")
                         .IsFixedLength(true);
 
-                    b.Property<int?>("TankCapacity")
+                    b.Property<int>("TankCapacity")
                         .HasColumnType("int");
 
                     b.HasIndex("FuelId");

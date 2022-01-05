@@ -1,6 +1,8 @@
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -76,8 +78,18 @@ namespace RentalAPI
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
-            services.AddControllers().AddNewtonsoftJson();// options =>
-                                    //  options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddControllers().AddNewtonsoftJson();
+
+            services.AddAuthentication("BasicAuthentication")
+                    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
+                    .RequireAuthenticatedUser()
+                    .Build());
+            });
+
             services.AddOData();
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -87,9 +99,9 @@ namespace RentalAPI
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "RentalAPI", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "RentalAPI", Version = "v1" });
             });
         }
 
@@ -105,6 +117,8 @@ namespace RentalAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

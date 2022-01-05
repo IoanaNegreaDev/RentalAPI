@@ -72,6 +72,9 @@ namespace RentalAPI.Mapping
 
             CreateMap<RentalDamageCreationDTO, RentalDamage>();
             CreateMap<DamageIndirectCreationDTO, Damage>();
+
+            CreateMap<UserCreationDTO, User>();
+            CreateMap<User, UserDTO>();
         }
     }
 }

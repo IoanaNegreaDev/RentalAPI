@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,6 +23,7 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
+        [BasicAuthorization]
         [HttpGet]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
@@ -37,6 +40,7 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
+        [BasicAuthorization]
         [HttpGet("{id}")]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get(int id)

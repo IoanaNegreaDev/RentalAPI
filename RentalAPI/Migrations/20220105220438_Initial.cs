@@ -63,6 +63,20 @@ namespace RentalAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Contracts",
                 columns: table => new
                 {
@@ -196,7 +210,7 @@ namespace RentalAPI.Migrations
                     Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RegistrationNumber = table.Column<string>(type: "nchar(10)", fixedLength: true, maxLength: 10, nullable: false),
                     FuelId = table.Column<int>(type: "int", nullable: false),
-                    TankCapacity = table.Column<int>(type: "int", nullable: true)
+                    TankCapacity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -338,6 +352,11 @@ namespace RentalAPI.Migrations
                     { 2, "Gas", 1.2f },
                     { 3, "Electricity", 0.3f }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Password", "UserName" },
+                values: new object[] { 1, "Administrator", "Administrator" });
 
             migrationBuilder.InsertData(
                 table: "Categories",
@@ -485,6 +504,9 @@ namespace RentalAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Trucks");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "VehicleRentals");
