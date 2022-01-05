@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RentalAPI.DTO;
 using RentalAPI.Models;
-using RentalAPI.Persistance;
 using RentalAPI.Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
@@ -27,10 +23,18 @@ namespace RentalAPI.Controllers
 
         [HttpGet]
         [EnableQuery]
-        public async Task<IEnumerable<CategoryDTO>> Index()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
         {
-            var categories = await _categoryService.ListAsync();
-            return _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(categories);
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var result = await _categoryService.ListAsync();
+            if (result == null)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(result);
+
+            return Ok(resultDTO);
         }
     }
 }

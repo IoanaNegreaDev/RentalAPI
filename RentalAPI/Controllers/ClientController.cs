@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
-using RentalAPI.Persistance;
 using RentalAPI.Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
@@ -30,39 +25,57 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
         {
-            var result =  await _clientService.ListAsync();
-            var resource = _mapper.Map<IEnumerable<Client>, IEnumerable<ClientDTO>>(result);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            return Ok(resource);
+            var result =  await _clientService.ListAsync();
+            if (result == null)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<Client>, IEnumerable<ClientDTO>>(result);
+
+            return Ok(resultDTO);
         }
 
         [HttpGet("{id}")]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get(int id)
         {
-            var result = await _clientService.FindByIdAsync(id);
-            var resource = _mapper.Map<Client, ClientDTO>(result);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            return Ok(resource);
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
+            var result = await _clientService.FindByIdAsync(id);
+            if (result == null)
+                return NotFound();
+
+            var resultDTO = _mapper.Map<Client, ClientDTO>(result);
+
+            return Ok(resultDTO);
         }
 
         [HttpPut]
         [EnableQuery]
-        public async Task<IActionResult> Update(int Id, ClientUpdateDTO clientDTO)
+        public async Task<IActionResult> Update(int id, ClientUpdateDTO clientDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
             var client = _mapper.Map<ClientUpdateDTO, Client>(clientDTO);
-            client.Id = Id;
-            var updateClientResult = await _clientService.UpdateAsync(client);
+            client.Id = id;
 
-            if (!updateClientResult.Success)
-                return BadRequest(updateClientResult.Message);
+            var result = await _clientService.UpdateAsync(client);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
-            var resource = _mapper.Map<Client, ClientDTO>(updateClientResult._entity);
+            var resultDTO = _mapper.Map<Client, ClientDTO>(result._entity);
 
-            return Ok(resource);
+            return Ok(resultDTO);
         }
     }
 }

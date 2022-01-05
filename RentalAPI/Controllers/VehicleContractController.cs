@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
 using RentalAPI.Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
@@ -31,7 +28,13 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ContractDTO>>> Get()
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
             var result = await _contractService.ListAsync();
+            if (result == null)
+                return NoContent();
+
             var resultDTO = _mapper.Map<IEnumerable<Contract>, IEnumerable<VehicleContractDTO>>(result);
         
             return Ok(resultDTO);
@@ -41,7 +44,13 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<ContractDTO>> Get(int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
             var result = await _contractService.FindByIdAsync(id);
+            if (result == null)
+                return NotFound();
+
             var resultDTO = _mapper.Map<Contract, VehicleContractDTO>(result);
 
             return Ok(resultDTO);
@@ -53,16 +62,18 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var newContract = _mapper.Map<ContractCreationDTO, Contract>(contractDTO);
+            var contract = _mapper.Map<ContractCreationDTO, Contract>(contractDTO);
 
-            var addContractResult = await _contractService.AddAsync(newContract);
+            var result = await _contractService.AddAsync(contract);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
-            if (!addContractResult.Success)
-                return BadRequest(addContractResult.Message);
+            var resultDTO = _mapper.Map<Contract, VehicleContractDTO>(result._entity);
 
-            var resource = _mapper.Map<Contract, VehicleContractDTO>(addContractResult._entity);
-
-            return CreatedAtAction(nameof(AddContract), new { id = resource.Id }, resource);
+            return CreatedAtAction(nameof(Get),
+                        ControllerContext.RouteData.Values["controller"].ToString(),
+                        new { id = resultDTO.Id },
+                        resultDTO);
         }
     }
 }

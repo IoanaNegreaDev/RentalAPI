@@ -28,10 +28,16 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<RentalDamageDTO>>> Get()
         {
-            var result = await _rentalDamageService.ListAsync();
-            var resource = _mapper.Map<IEnumerable<RentalDamage>, IEnumerable<RentalDamageDTO>>(result);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            return Ok(resource);
+            var result = await _rentalDamageService.ListAsync();
+            if (result == null)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<RentalDamage>, IEnumerable<RentalDamageDTO>>(result);
+
+            return Ok(resultDTO);
         }
 
 
@@ -39,7 +45,13 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<ContractDTO>> Get(int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
             var result = await _rentalDamageService.FindByIdAsync(id);
+            if (result == null)
+                return NotFound();
+
             var resultDTO = _mapper.Map<RentalDamage, RentalDamageDTO>(result);
 
             return Ok(resultDTO);
@@ -53,13 +65,16 @@ namespace RentalAPI.Controllers
 
             var newDamage = _mapper.Map<RentalDamageCreationDTO, RentalDamage>(newDamageDTO);
 
-            var addRentalDamageResult = await _rentalDamageService.AddAsync(newDamage);
-            if (!addRentalDamageResult.Success)
-                return BadRequest(addRentalDamageResult.Message);
+            var result = await _rentalDamageService.AddAsync(newDamage);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
-            var rentalDamageDTOResult = _mapper.Map<RentalDamage, RentalDamageDTO>(addRentalDamageResult._entity);
+            var resultDTO = _mapper.Map<RentalDamage, RentalDamageDTO>(result._entity);
 
-            return Ok(rentalDamageDTOResult);
+            return CreatedAtAction(nameof(Get), 
+                                    ControllerContext.RouteData.Values["controller"].ToString(), 
+                                    new { id = resultDTO.Id }, 
+                                    resultDTO);
         }
     }
 }

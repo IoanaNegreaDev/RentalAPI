@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RentalAPI.DTO;
 using RentalAPI.Models;
-using RentalAPI.Persistance;
-using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
@@ -19,13 +15,10 @@ namespace RentalAPI.Controllers
     public class RentablesController : Controller
     {
         private readonly IRentableService _rentableService;
-        private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
-        public RentablesController(IRentableService rentableService, ICategoryService categoryService, IMapper mapper)
+        public RentablesController(IRentableService rentableService, IMapper mapper)
         {
             _rentableService = rentableService;
-            _categoryService = categoryService;
-   
             _mapper = mapper;
         }
 
@@ -33,17 +26,32 @@ namespace RentalAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<RentableDTO>>> Get()
         {
-            var result = await _rentableService.ListAsync();
-            var resource = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            return Ok(resource);
+            var result = await _rentableService.ListAsync();
+            if (result == null)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+
+            return Ok(resultDTO);
         }
 
         [HttpGet("{id}")]
         [EnableQuery]
         public async Task<ActionResult<RentableDTO>> Get(int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
             var result = await _rentableService.FindByIdAsync(id);
+            if (result == null)
+                return NotFound();
+
             var resultDTO = _mapper.Map<Rentable, RentableDTO>(result);
 
             return Ok(resultDTO);
@@ -51,21 +59,29 @@ namespace RentalAPI.Controllers
 
         [HttpGet("Available")]
         [EnableQuery]
-        public async Task<IEnumerable<RentableDTO>> GetAllAvailable(int categoryId,
+        public async Task<ActionResult<IEnumerable<RentableDTO>>> GetAllAvailable(int categoryId,
                                                  DateTime startDate,
                                                  DateTime endDate)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
             if (categoryId<=0)
-                return null;
+                return BadRequest("CategoryId must be bigger than 0.");
 
             if (startDate > endDate)
-                return null;
+                return BadRequest("EndDate must be bigger than StartDate");
+
             if (startDate < DateTime.Today)
-                return null;
+                return BadRequest("StartDate must be bigger than today.");
 
-            var availableRentals = await _rentableService.ListAvailableAsync(categoryId, startDate, endDate);
+            var result = await _rentableService.ListAvailableAsync(categoryId, startDate, endDate);
+            if (result == null)
+                return NoContent();
 
-            return _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(availableRentals);
+            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+
+            return Ok(resultDTO);
         }
     }
 }
