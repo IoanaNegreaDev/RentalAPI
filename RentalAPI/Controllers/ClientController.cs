@@ -23,7 +23,7 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
-        [BasicAuthorization]
+      //  [BasicAuthorization]
         [HttpGet]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
@@ -40,10 +40,10 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-        [BasicAuthorization]
+      //  [BasicAuthorization]
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<ClientDTO>>> Get(int id)
+        public async Task<ActionResult<ClientDTO>> Get(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

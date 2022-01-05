@@ -40,7 +40,7 @@ namespace RentalAPI.Controllers
 
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<VehicleRental>>> Get(int id)
+        public async Task<ActionResult<VehicleRental>> Get(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
