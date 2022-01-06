@@ -4,6 +4,7 @@ using RentalAPI.Services.Interfaces;
 using RestSharp;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace RentalAPI.Services
 {
@@ -12,80 +13,76 @@ namespace RentalAPI.Services
         private string _accessToken;
         private ICurrencyService _currencyService;
 
-        public CurrencyRateExchanger(ICurrencyService currencyService)
-        {
-            _accessToken = "3e3c7750926ef2253fe526e47b87b16b";
+        public CurrencyRateExchanger(IConfiguration configuration, ICurrencyService currencyService)
+        {          
+            _accessToken = configuration.GetSection("ConnectionStrings:CurrencyLayerConnection").Value;
             _currencyService = currencyService;
         }
 
         private async Task<IRestResponse> GetCurrencyLayerExchangeRateAsync(string sourceCurrency,
                                                              string destinationCurrency)
         {
-            var client = new RestClient($"http://apilayer.net/api/live" +
-                                             $"?access_key=" + _accessToken +
-                                             $"&currencies=" + destinationCurrency +
-                                             $"&source=" + sourceCurrency +
-                                             $"&format=1");
+            try
+            {
+                var client = new RestClient($"http://apilayer.net/api/live" +
+                                          $"?access_key=" + _accessToken +
+                                          $"&currencies=" + destinationCurrency +
+                                          $"&source=" + sourceCurrency +
+                                          $"&format=1");
 
-            var request = new RestRequest(Method.GET);
-            return await client.ExecuteAsync(request);
+                var request = new RestRequest(Method.GET);
+                return await client.ExecuteAsync(request);
+            }
+            catch(Exception ex)
+            {
+                IRestResponse response = new RestResponse();
+                response.ResponseStatus = ResponseStatus.Error;
+                response.ErrorMessage = ex.Message;
+                response.ErrorException = ex;
+                return response;
+            }
         }
 
-        private float ExtractConversionRateFromResponse(IRestResponse restResponse, 
+        private BasicOperationResponse<float> ExtractConversionRateFromResponse(IRestResponse restResponse, 
                                             string sourceCurrency,
                                             string destinationCurrency)
         {
-            var jsonObject = JObject.Parse(restResponse.Content);
-            return jsonObject["quotes"][sourceCurrency + destinationCurrency].Value<float>();
-        }
-
-        public async Task<BasicOperationResponse<float>> Convert(string sourceCurrency,
-                                                             string destinationCurrency,
-                                                             float amount)
-        {
-            var response = await GetCurrencyLayerExchangeRateAsync(sourceCurrency, destinationCurrency);
-
-            if (!response.IsSuccessful)
-                return new BasicOperationResponse<float>("Fail to get conversion rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
-           
-            var conversionRate = ExtractConversionRateFromResponse(response, sourceCurrency, destinationCurrency);
-
-            return new BasicOperationResponse<float>(amount * conversionRate);
-        }
-
-        public async Task<BasicOperationResponse<float>> ConvertFromDefaultCurrency(int destinationCurrencyId, float amount)
-        {
-            var destinationCurrency = await _currencyService.FindByIdAsync(destinationCurrencyId);
-            if (destinationCurrency == null)
-                return new BasicOperationResponse<float>("Destination currency not found in database.");
-
-            if (!destinationCurrency.Default)
+            try
             {
-                var defaultCurrency = await _currencyService.GetDefaultAsync();
-                return await Convert(defaultCurrency.Name, destinationCurrency.Name, amount);
+                var jsonObject = JObject.Parse(restResponse.Content);
+                var exchangeRate = jsonObject["quotes"][sourceCurrency + destinationCurrency].Value<float>();
+                return new BasicOperationResponse<float>(exchangeRate);
             }
-
-            return new BasicOperationResponse<float>(amount);
+            catch(Exception ex)
+            {
+                return new BasicOperationResponse<float>("Failed to parse json object for currency rate. " + ex.Message);
+            }
         }
 
         public async Task<BasicOperationResponse<float>> GetExchangeRate(int sourceCurrencyId, int destinationCurrencyId)
         {
-            var sourceCurrency = await _currencyService.FindByIdAsync(sourceCurrencyId);
-            if (sourceCurrency == null)
-                return new BasicOperationResponse<float>("Destination currency not found in database.");
+            try
+            {
+                var sourceCurrency = await _currencyService.FindByIdAsync(sourceCurrencyId);
+                if (sourceCurrency == null)
+                    return new BasicOperationResponse<float>("Destination currency not found in database.");
 
-            var destinationCurrency = await _currencyService.FindByIdAsync(destinationCurrencyId);
-            if (destinationCurrency == null)
-                return new BasicOperationResponse<float>("Destination currency not found in database.");
+                var destinationCurrency = await _currencyService.FindByIdAsync(destinationCurrencyId);
+                if (destinationCurrency == null)
+                    return new BasicOperationResponse<float>("Destination currency not found in database.");
 
-            var response = await GetCurrencyLayerExchangeRateAsync(sourceCurrency.Name, destinationCurrency.Name);
+                var response = await GetCurrencyLayerExchangeRateAsync(sourceCurrency.Name, destinationCurrency.Name);
 
-            if (!response.IsSuccessful)
-                return new BasicOperationResponse<float>("Fail to get conversion rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
+                if (!response.IsSuccessful)
+                    return new BasicOperationResponse<float>("Fail to get conversion rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
 
-            var conversionRate = ExtractConversionRateFromResponse(response, sourceCurrency.Name, destinationCurrency.Name);
+                return ExtractConversionRateFromResponse(response, sourceCurrency.Name, destinationCurrency.Name);
+            }
+            catch(Exception ex)
+            {
+                return new BasicOperationResponse<float>("An internal exception occured. " + ex.Message);
+            }
 
-            return new BasicOperationResponse<float>(conversionRate);
         }
     }
 }
