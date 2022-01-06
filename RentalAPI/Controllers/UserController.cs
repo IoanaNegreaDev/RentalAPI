@@ -2,31 +2,31 @@
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
-/*    [Authorize]
     [ApiController]
     [Route("api/users")]
-    public class UserController : Controller
+    public class AuthentificationController : Controller
     {
         private readonly IUserService _service;
         private readonly IMapper _mapper;
-        public UserController(IUserService service, IMapper mapper)
+
+        public AuthentificationController(IUserService service, IMapper mapper)
         {
             _service = service;
-            _mapper = mapper;
+            _mapper = mapper;         
         }
 
         [HttpGet]
-        [EnableQuery]
+      //  [EnableQuery]
         public async Task<ActionResult<IEnumerable<User>>> Get()
         {
             if (!ModelState.IsValid)
@@ -42,7 +42,7 @@ namespace RentalAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [EnableQuery]
+       // [EnableQuery]
         public async Task<ActionResult<IEnumerable<User>>> Get(int id)
         {
             if (!ModelState.IsValid)
@@ -57,37 +57,35 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-        [HttpGet("GetUser")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
-        {
-            string userName = HttpContext.User.Identity.Name;
-            var result = await _service.FindByUserNameAsync(userName);
-            if (result == null)
-                return NotFound();
-
-            var resultDTO = _mapper.Map<User, UserDTO>(result);
-
-            return Ok(resultDTO);
-        }
 
         [HttpPost]
-        public async Task<IActionResult> Add(UserCreationDTO newUser)
+        public async Task<ActionResult<UserWithToken>> RegisterUser(UserCreationDTO userDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _mapper.Map<UserCreationDTO, User>(newUser);
+            var user = _mapper.Map<UserCreationDTO, User>(userDTO);
 
-            var result = await _service.AddAsync(user);
+            var result = await _service.AddUserWithTokenAsync(user);
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var resultDTO = _mapper.Map<User, UserDTO>(result._entity);
-
-            return CreatedAtAction(nameof(Get),
-                        ControllerContext.RouteData.Values["controller"].ToString(),
-                        new { id = resultDTO.Id },
-                        resultDTO);
+            return Ok(result._entity);
         }
-    }*/
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserCreationDTO userDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = _mapper.Map<UserCreationDTO, User>(userDTO);
+
+            var result = await _service.FindUserAndRefreshTokenAsync(user);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result._entity);
+        }
+    }
 }

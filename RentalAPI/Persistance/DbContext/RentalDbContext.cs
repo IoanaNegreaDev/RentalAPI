@@ -35,6 +35,8 @@ namespace RentalAPI.Persistance
         public virtual DbSet<VehicleRental> VehicleRentals { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -322,6 +324,15 @@ namespace RentalAPI.Persistance
             (
                 new User { Id = 1, UserName = "Administrator", Password = "Administrator"}
             );
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RefreshTokens_User");
+            });
 
             OnModelCreatingPartial(modelBuilder);
         }

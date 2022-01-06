@@ -10,7 +10,7 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220105220438_Initial")]
+    [Migration("20220106221849_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -233,6 +233,29 @@ namespace RentalAPI.Migrations
                             Name = "Electricity",
                             PricePerUnit = 0.3f
                         });
+                });
+
+            modelBuilder.Entity("RentalAPI.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
@@ -568,6 +591,17 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rentable");
                 });
 
+            modelBuilder.Entity("RentalAPI.Models.RefreshToken", b =>
+                {
+                    b.HasOne("RentalAPI.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_RefreshTokens_User")
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RentalAPI.Models.Rentable", b =>
                 {
                     b.HasOne("RentalAPI.Models.Category", "Category")
@@ -721,6 +755,11 @@ namespace RentalAPI.Migrations
             modelBuilder.Entity("RentalAPI.Models.Rental", b =>
                 {
                     b.Navigation("RentalDamages");
+                });
+
+            modelBuilder.Entity("RentalAPI.Models.User", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

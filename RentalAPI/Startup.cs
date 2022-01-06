@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalAPI.Mapping;
 using RentalAPI.Persistance;
@@ -19,7 +21,7 @@ using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
 using RentalAPI.ValidationFilters;
-
+using System.Text;
 
 namespace RentalAPI
 {
@@ -78,14 +80,33 @@ namespace RentalAPI
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddControllers().AddNewtonsoftJson();
 
-            services.AddAuthentication("BasicAuthentication")
-                    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null)
+                    .AddJwtBearer(options =>
+                    {
+                        options.SaveToken = true;
+                        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                        {
+                            ValidIssuer = "me",
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("JWTSetiings:SecretKey").Value)),
+                            ValidAudience = "world"
+                        };
+
+                    });
+
+          //  services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
+            options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser()
+                    .Build();
+            options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
                     .RequireAuthenticatedUser()
                     .Build());
             });

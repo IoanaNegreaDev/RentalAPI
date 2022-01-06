@@ -54,7 +54,7 @@ namespace RentalAPI.Services
             var user = await _context.Users.Where(item => item.UserName == authUsername && item.Password == authPassword).FirstOrDefaultAsync();
             if (user == null)
                 return AuthenticateResult.Fail("Invalid user name or password");
-            var authenticatedUser = new AuthenticatedUser("BasicAuthentication", true, "roundthecode");
+            var authenticatedUser = new AuthenticatedUser("BasicAuthentication", true, user.UserName);
             var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(authenticatedUser));
 
             return AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name));

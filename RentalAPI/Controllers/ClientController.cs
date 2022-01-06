@@ -23,7 +23,8 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
-      //  [BasicAuthorization]
+        //  [BasicAuthorization]
+        [Authorize]
         [HttpGet]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
