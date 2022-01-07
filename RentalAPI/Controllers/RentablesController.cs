@@ -14,11 +14,11 @@ namespace RentalAPI.Controllers
     [Route("api/rentables")]
     public class RentablesController : Controller
     {
-        private readonly IRentableService _rentableService;
+        private readonly IRentableService _service;
         private readonly IMapper _mapper;
         public RentablesController(IRentableService rentableService, IMapper mapper)
         {
-            _rentableService = rentableService;
+            _service = rentableService;
             _mapper = mapper;
         }
 
@@ -29,7 +29,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _rentableService.ListAsync();
+            var result = await _service.ListAsync();
             if (result == null)
                 return NoContent();
 
@@ -48,7 +48,7 @@ namespace RentalAPI.Controllers
             if (id <= 0)
                 return BadRequest("id must be bigger than 0.");
 
-            var result = await _rentableService.FindByIdAsync(id);
+            var result = await _service.FindByIdAsync(id);
             if (result == null)
                 return NotFound();
 
@@ -75,7 +75,7 @@ namespace RentalAPI.Controllers
             if (startDate < DateTime.Today)
                 return BadRequest("StartDate must be bigger than today.");
 
-            var result = await _rentableService.ListAvailableAsync(categoryId, startDate, endDate);
+            var result = await _service.ListAvailableAsync(categoryId, startDate, endDate);
             if (result == null)
                 return NoContent();
 

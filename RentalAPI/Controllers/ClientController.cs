@@ -15,16 +15,14 @@ namespace RentalAPI.Controllers
     [Route("api/clients")]
     public class ClientsController : Controller
     {
-        private readonly IClientService _clientService;
+        private readonly IClientService _service;
         private readonly IMapper _mapper;
         public ClientsController(IClientService clientService, IMapper mapper)
         {
-            _clientService = clientService;
+            _service = clientService;
             _mapper = mapper;
         }
 
-        //  [BasicAuthorization]
-        [Authorize]
         [HttpGet]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> Get()
@@ -32,7 +30,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result =  await _clientService.ListAsync();
+            var result =  await _service.ListAsync();
             if (result == null)
                 return NoContent();
 
@@ -41,7 +39,6 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-      //  [BasicAuthorization]
         [HttpGet("{id}")]
         [EnableQuery]
         public async Task<ActionResult<ClientDTO>> Get(int id)
@@ -52,7 +49,7 @@ namespace RentalAPI.Controllers
             if (id <= 0)
                 return BadRequest("id must be bigger than 0.");
 
-            var result = await _clientService.FindByIdAsync(id);
+            var result = await _service.FindByIdAsync(id);
             if (result == null)
                 return NotFound();
 
@@ -74,7 +71,7 @@ namespace RentalAPI.Controllers
             var client = _mapper.Map<ClientUpdateDTO, Client>(clientDTO);
             client.Id = id;
 
-            var result = await _clientService.UpdateAsync(client);
+            var result = await _service.UpdateAsync(client);
             if (!result.Success)
                 return BadRequest(result.Message);
 

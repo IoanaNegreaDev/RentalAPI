@@ -21,6 +21,7 @@ using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
 using RentalAPI.ValidationFilters;
+using System;
 using System.Text;
 
 namespace RentalAPI
@@ -86,29 +87,31 @@ namespace RentalAPI
             services.AddControllers().AddNewtonsoftJson();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
                     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null)
                     .AddJwtBearer(options =>
                     {
                         options.SaveToken = true;
+                        options.RequireHttpsMetadata = true;
                         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                         {
+                            ValidateIssuerSigningKey = true,
                             ValidIssuer = "me",
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("JWTSetiings:SecretKey").Value)),
-                            ValidAudience = "world"
+                            ValidAudience = "world",
+                            ClockSkew = TimeSpan.Zero
                         };
-
                     });
 
-          //  services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
             services.AddAuthorization(options =>
             {
-            options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .Build();
-            options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
-                    .RequireAuthenticatedUser()
-                    .Build());
+                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                        .RequireAuthenticatedUser()
+                        .Build();
+                options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
+                        .RequireAuthenticatedUser()
+                        .Build());
             });
 
             services.AddOData();

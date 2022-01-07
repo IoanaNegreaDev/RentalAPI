@@ -3,6 +3,7 @@ using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -72,6 +73,47 @@ namespace RentalAPI.Controllers
                         ControllerContext.RouteData.Values["controller"].ToString(),
                         new { id = resultDTO.Id },
                         resultDTO);
+        }
+
+        [HttpPut]
+        [EnableQuery]
+        [BasicAuthorization]
+        public async Task<IActionResult> Update(int id, VehicleRentalUpdateDTO updateDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
+            var rental = _mapper.Map<VehicleRentalUpdateDTO, VehicleRental>(updateDTO);
+            rental.Id = id;
+
+            var result = await _rentalService.UpdateAsync(rental);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            var resultDTO = _mapper.Map<VehicleRental, VehicleRentalDTO>(result._entity);
+
+            return Ok(resultDTO);
+        }
+
+        [HttpDelete]
+        [EnableQuery]
+        [BasicAuthorization]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
+            var result = await _rentalService.DeleteAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok();
         }
     }
 }

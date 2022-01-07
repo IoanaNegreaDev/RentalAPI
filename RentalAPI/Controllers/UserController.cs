@@ -42,14 +42,14 @@ namespace RentalAPI.Controllers
         }
 
         [HttpGet("{id}")]
-       // [EnableQuery]
+        [EnableQuery]
         public async Task<ActionResult<IEnumerable<User>>> Get(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
             var result = await _service.FindByIdAsync(id);
-            if (result == null)
+            if (result== null)
                 return NotFound();
 
             var resultDTO = _mapper.Map<User, UserDTO>(result);
@@ -58,7 +58,7 @@ namespace RentalAPI.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<ActionResult<UserWithToken>> RegisterUser(UserCreationDTO userDTO)
         {
             if (!ModelState.IsValid)
@@ -81,11 +81,15 @@ namespace RentalAPI.Controllers
 
             var user = _mapper.Map<UserCreationDTO, User>(userDTO);
 
-            var result = await _service.FindUserAndRefreshTokenAsync(user);
+            var result = await _service.FindByUserNameAndPasswordAsync(user.UserName, user.Password);
             if (result == null)
-                return NotFound();
+                return NotFound("Invalid user name or password.");
 
-            return Ok(result._entity);
+            var refreshTokenResult = await _service.RefreshUserTokenAsync(result);
+            if (!refreshTokenResult.Success)
+                return NotFound("Failed to refresh token for user." + refreshTokenResult.Message);
+
+            return Ok(refreshTokenResult._entity);
         }
     }
 }

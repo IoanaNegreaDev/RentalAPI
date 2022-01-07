@@ -3,6 +3,7 @@ using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ namespace RentalAPI.Controllers
     [Route("api/rentaldamages")]
     public class RentalDamagesController : Controller
     {
-        private readonly IRentalDamageService _rentalDamageService;
+        private readonly IRentalDamageService _service;
         private readonly IMapper _mapper;
         public RentalDamagesController(IRentalDamageService rentalDamageService,
                                         IMapper mapper)
         {
-            _rentalDamageService = rentalDamageService;
+            _service = rentalDamageService;
             _mapper = mapper;
         }
 
@@ -29,7 +30,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _rentalDamageService.ListAsync();
+            var result = await _service.ListAsync();
             if (result == null)
                 return NoContent();
 
@@ -46,7 +47,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _rentalDamageService.FindByIdAsync(id);
+            var result = await _service.FindByIdAsync(id);
             if (result == null)
                 return NotFound();
 
@@ -63,7 +64,7 @@ namespace RentalAPI.Controllers
 
             var newDamage = _mapper.Map<RentalDamageCreationDTO, RentalDamage>(newDamageDTO);
 
-            var result = await _rentalDamageService.AddAsync(newDamage);
+            var result = await _service.AddAsync(newDamage);
             if (!result.Success)
                 return BadRequest(result.Message);
 
@@ -73,6 +74,24 @@ namespace RentalAPI.Controllers
                                     ControllerContext.RouteData.Values["controller"].ToString(), 
                                     new { id = resultDTO.Id }, 
                                     resultDTO);
+        }
+
+        [HttpDelete]
+        [EnableQuery]
+        [BasicAuthorization]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
+            var result = await _service.DeleteAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok();
         }
     }
 }

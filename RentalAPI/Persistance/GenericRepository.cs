@@ -26,5 +26,7 @@ namespace RentalAPI.Persistance
 			=> await _table.AddAsync(item);
 		virtual public void Update(T item)
 			=> _table.Update(item);
-    }
+		public void Remove(T item)
+			=>_table.Remove(item);
+	}
 }

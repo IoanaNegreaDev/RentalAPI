@@ -63,7 +63,8 @@ namespace RentalAPI.Mapping
 
             CreateMap<VehicleRental, VehicleRentalDTO>();
             CreateMap<VehicleRentalDTO, VehicleRental>();
-            
+            CreateMap<VehicleRentalUpdateDTO, VehicleRental>();
+
             CreateMap<RentalDamage, RentalDamageDTO>();
             CreateMap<RentalDamageDTO, RentalDamage>();
 

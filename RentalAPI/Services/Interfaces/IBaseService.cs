@@ -11,7 +11,7 @@ namespace RentalAPI.Services.Interfaces
         public Task<IEnumerable<T>> ListAsync();
         public Task<DbOperationResponse<T>> AddAsync(T item);
         public Task<T> FindByIdAsync(int id);
-
         public Task<DbOperationResponse<T>> UpdateAsync(T item);
+        public Task<DbOperationResponse<T>> DeleteAsync(int id);
     }
 }

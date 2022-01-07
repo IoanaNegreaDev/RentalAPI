@@ -8,6 +8,6 @@ namespace RentalAPI.Persistance.Interfaces
 {
     public interface IUserRepository: IGenericRepository<User>
     {
-        public Task<User> FindByUserNameAndPasswordAsync(string userName, string password);
+        public Task<User> FindByUserNameAndPasswordIncludeRefsAsync(string userName, string password);
     }
 }

@@ -9,5 +9,6 @@ namespace RentalAPI.Persistance.Interfaces
         public Task<T> FindByIdAsync(int id);
         public Task AddAsync(T item);
         public void Update(T item);
+        public void Remove(T item);
     }
 }

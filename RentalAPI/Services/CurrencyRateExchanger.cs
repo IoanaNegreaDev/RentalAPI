@@ -55,7 +55,7 @@ namespace RentalAPI.Services
             }
             catch(Exception ex)
             {
-                return new BasicOperationResponse<float>("Failed to parse json object for currency rate. " + ex.Message);
+                return new BasicOperationResponse<float>("Failed to parse json object for currency exchange rate. " + ex.Message);
             }
         }
 
@@ -74,7 +74,7 @@ namespace RentalAPI.Services
                 var response = await GetCurrencyLayerExchangeRateAsync(sourceCurrency.Name, destinationCurrency.Name);
 
                 if (!response.IsSuccessful)
-                    return new BasicOperationResponse<float>("Fail to get conversion rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
+                    return new BasicOperationResponse<float>("Fail to get exchange rate from https://currencylayer.com/. Error: " + response.ErrorMessage);
 
                 return ExtractConversionRateFromResponse(response, sourceCurrency.Name, destinationCurrency.Name);
             }

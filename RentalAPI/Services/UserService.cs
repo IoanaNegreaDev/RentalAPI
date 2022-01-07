@@ -18,20 +18,20 @@ namespace RentalAPI.Services
 {
     public class UserService: BaseService<User, IUserRepository>, IUserService
     {
-        private readonly IConfiguration _configuration;
+        private readonly byte[] _secretKey;
 
         public UserService(IUserRepository repository, IUnitOfWork unitOfWork, IConfiguration configuration)
           : base(repository, unitOfWork)
         {
-            _configuration = configuration;
+            _secretKey = Encoding.ASCII.GetBytes(configuration.GetSection("JWTSetiings:SecretKey").Value);
         }
 
         public async Task<User> FindByUserNameAndPasswordAsync(string userName, string password)
-           => await _repository.FindByUserNameAndPasswordAsync(userName, password);
+           => await _repository.FindByUserNameAndPasswordIncludeRefsAsync(userName, password);
 
         public async Task<DbOperationResponse<UserWithToken>> AddUserWithTokenAsync(User user)
         {
-            var dbUser = await _repository.FindByUserNameAndPasswordAsync(user.UserName, user.Password);
+            var dbUser = await _repository.FindByUserNameAndPasswordIncludeRefsAsync(user.UserName, user.Password);
             if (dbUser != null)
                 return new DbOperationResponse<UserWithToken>("User already exists.");
 
@@ -59,19 +59,19 @@ namespace RentalAPI.Services
             }
         }
 
-        public async Task<DbOperationResponse<UserWithToken>> FindUserAndRefreshTokenAsync(User user)
+        public async Task<DbOperationResponse<UserWithToken>> RefreshUserTokenAsync(User user)
         {
-            var dbUser = await _repository.FindByUserNameAndPasswordAsync(user.UserName, user.Password);
+            var dbUser = await _repository.FindByUserNameAndPasswordIncludeRefsAsync(user.UserName, user.Password);
             if (dbUser == null)
                 return new DbOperationResponse<UserWithToken>("User not found in database.");
 
             RefreshToken refreshToken = GenerateRefreshToken();
             try
             {
-                user.RefreshTokens.Add(refreshToken);
+                dbUser.RefreshTokens.Add(refreshToken);
                 await _unitOfWork.SaveChangesAsync();
 
-                UserWithToken userWithToken = new UserWithToken(user);
+                var userWithToken = new UserWithToken(user);
                 userWithToken.RefreshToken = refreshToken.Token;
                 userWithToken.AccessToken = GenerateAccessToken(user.Id);
 
@@ -100,8 +100,7 @@ namespace RentalAPI.Services
 
         private string GenerateAccessToken(int userId)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JWTSetiings:SecretKey").Value);
+            var tokenHandler = new JwtSecurityTokenHandler();     
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
@@ -111,7 +110,7 @@ namespace RentalAPI.Services
                 Expires = DateTime.UtcNow.AddDays(1),
                 Issuer = "me",
                 Audience = "world",
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(_secretKey),
                 SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

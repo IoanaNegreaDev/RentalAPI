@@ -13,9 +13,10 @@ namespace RentalAPI.Persistance
         public UserRepository(RentalDbContext context) : base(context)
         { }
 
-        public async Task<User> FindByUserNameAndPasswordAsync(string userName, string password)
+        public async Task<User> FindByUserNameAndPasswordIncludeRefsAsync(string userName, string password)
                => await _table
                 .Where(item => item.UserName == userName && item.Password == password)
+                .Include (item => item.RefreshTokens)
                 .FirstOrDefaultAsync();
     }
 }

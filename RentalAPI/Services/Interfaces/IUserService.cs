@@ -12,7 +12,7 @@ namespace RentalAPI.Services.Interfaces
     {
         public Task<User> FindByUserNameAndPasswordAsync(string userName, string password);
         public Task<DbOperationResponse<UserWithToken>> AddUserWithTokenAsync(User user);
-        public Task<DbOperationResponse<UserWithToken>> FindUserAndRefreshTokenAsync(User user);
+        public Task<DbOperationResponse<UserWithToken>> RefreshUserTokenAsync(User user);
         
     }
 }

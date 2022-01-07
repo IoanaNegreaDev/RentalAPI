@@ -21,6 +21,7 @@ namespace RentalAPI.Services
         }
         virtual public async Task<IEnumerable<T>> ListAsync()
             => await _repository.ListAsync();
+
         virtual public async Task<DbOperationResponse<T>> AddAsync(T item)
         {
             try
@@ -37,7 +38,28 @@ namespace RentalAPI.Services
 
         virtual public async Task<T> FindByIdAsync(int id)
           => await _repository.FindByIdAsync(id);
+
         virtual public Task<DbOperationResponse<T>> UpdateAsync(T item)
             => throw new NotImplementedException();
+
+        virtual public async Task<DbOperationResponse<T>> DeleteAsync(int id)
+        {
+            var item = await _repository.FindByIdAsync(id);
+
+            if (item == null)
+                return new DbOperationResponse<T>("Item not found.");
+
+            try
+            {
+                _repository.Remove(item);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new DbOperationResponse<T>(item);
+            }
+            catch (Exception ex)
+            {
+                return new DbOperationResponse<T>($"An error occurred when deleting the item: {ex.Message}");
+            }
+        }
     }
 }

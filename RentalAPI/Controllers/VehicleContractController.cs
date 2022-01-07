@@ -3,6 +3,7 @@ using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
+using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,14 +14,14 @@ namespace RentalAPI.Controllers
     [Route("api/vehiclerentalcontracts")]
     public class VehiclesRentalContractsController : Controller
     {
-        private readonly IContractService _contractService;
+        private readonly IContractService _service;
         private readonly IMapper _mapper;
         public VehiclesRentalContractsController(IContractService contractService,
                                                  IClientService clientService,
                                                  ICurrencyService currencyService,
                                                  IMapper mapper)
         {
-            _contractService = contractService;
+            _service = contractService;
             _mapper = mapper;
         }
 
@@ -31,7 +32,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _contractService.ListAsync();
+            var result = await _service.ListAsync();
             if (result == null)
                 return NoContent();
 
@@ -47,7 +48,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _contractService.FindByIdAsync(id);
+            var result = await _service.FindByIdAsync(id);
             if (result == null)
                 return NotFound();
 
@@ -64,7 +65,7 @@ namespace RentalAPI.Controllers
 
             var contract = _mapper.Map<ContractCreationDTO, Contract>(contractDTO);
 
-            var result = await _contractService.AddAsync(contract);
+            var result = await _service.AddAsync(contract);
             if (!result.Success)
                 return BadRequest(result.Message);
 
@@ -74,6 +75,24 @@ namespace RentalAPI.Controllers
                         ControllerContext.RouteData.Values["controller"].ToString(),
                         new { id = resultDTO.Id },
                         resultDTO);
+        }
+
+        [HttpDelete]
+        [EnableQuery]
+        [BasicAuthorization]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (id <= 0)
+                return BadRequest("id must be bigger than 0.");
+
+            var result = await _service.DeleteAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok();
         }
     }
 }
