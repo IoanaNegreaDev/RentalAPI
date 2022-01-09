@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using RentalAPI.DTO;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
 
@@ -30,6 +29,9 @@ namespace RentalAPI.Mapping
 
             CreateMap<Sedan, SedanDTO>();
             CreateMap<SedanDTO, Sedan>();
+
+            CreateMap<Fuel, FuelDTO>();
+            CreateMap<FuelDTO, Fuel>();
 
             CreateMap<Client, ClientDTO>();
             CreateMap<ClientDTO, Client>();

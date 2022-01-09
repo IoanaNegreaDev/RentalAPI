@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.DTOs
 {
-    public class DomainDTO
+    public class FuelDTO
     {
+        public int Id { get; set; }
         public string Name { get; set; }
+        public float PricePerUnit { get; set; }
     }
 }

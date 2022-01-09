@@ -22,14 +22,26 @@ namespace RentalAPI.Persistance
 					.Include(item => item.Client)
 					.Include(item=>item.Currency)
 					.ToListAsync();
-	
+
 		override public async Task<Contract> FindByIdAsync(int id)
 			=> await _table
 					.Where(item => item.Id == id)
-					.Include(item => item.Rentals).ThenInclude(item => item.RentalDamages).ThenInclude(item => item.Damage)
-					.Include(item => item.Rentals).ThenInclude(item => item.RentedItem)
+					.Include(item => item.Rentals)
+						.ThenInclude(item => item.RentalDamages)
+						.ThenInclude(item => item.Damage)
+					.Include(item => item.Rentals)
+						.ThenInclude(item => item.RentedItem)
 					.Include(item => item.Client)
 					.Include(item => item.Currency)
 				    .FirstOrDefaultAsync();
+
+		public async Task RemoveAsync(Contract item)
+		{
+			var itemWithRentals = await _table
+				.Where(c =>c.Id == item.Id)
+				.Include(item => item.Rentals)
+				.FirstOrDefaultAsync();
+			 _table.Remove(itemWithRentals);
+		}
 	}
 }

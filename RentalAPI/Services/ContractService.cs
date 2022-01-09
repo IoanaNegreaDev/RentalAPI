@@ -5,6 +5,7 @@ using RentalAPI.Services.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace RentalAPI.Services
 {
@@ -33,7 +34,7 @@ namespace RentalAPI.Services
             {
                 var dbCurrency = await _currencyRepository.FindByIdAsync(item.PaymentCurrencyId);
                 if (dbCurrency == null)
-                    return new DbOperationResponse<Contract>("Currency not supported. Check https://localhost:5001/Currencies for supported currencies.");          
+                    return new DbOperationResponse<Contract>("Currency not supported. Check the supported currencies.");          
 
                 var dbClient = await _clientRepository.FindByNameAsync(item.Client.Name);
                 if (dbClient != null)
@@ -42,8 +43,11 @@ namespace RentalAPI.Services
                     item.Client = null;
                 }
 
-                var defaultCurrency = _currencyRepository.GetDefaultAsync();
-                var exchangeRateResult = await _currencyExchanger.GetExchangeRate(defaultCurrency.Result.Id,
+                var defaultCurrency = await _currencyRepository.GetDefaultAsync();
+                if (defaultCurrency == null)
+                    return new DbOperationResponse<Contract>("Internal error. Failed to detect the application default currency.");
+
+                var exchangeRateResult = await _currencyExchanger.GetExchangeRate(defaultCurrency.Id,
                                                                                   item.PaymentCurrencyId);
                 if (!exchangeRateResult.Success)
                     return new DbOperationResponse<Contract>("Failed to get exchange rate.");
@@ -79,6 +83,36 @@ namespace RentalAPI.Services
             {
                 // Do some logging stuff
                 return new DbOperationResponse<Contract>($"An error occurred when updating the contract: {ex.Message}");
+            }
+        }
+        
+        override public async Task<DbOperationResponse<Contract>> DeleteAsync(int id)
+        {
+            var item = await _repository.FindByIdAsync(id);
+
+            if (item == null)
+                return new DbOperationResponse<Contract>("Item not found.");
+
+
+            var hasRegisteredDamagesPerRental = item.Rentals
+                                                    .Where(r => r != null && 
+                                                           r.RentalDamages != null && 
+                                                           r.RentalDamages.Count() > 0)
+                                                    .Any();
+
+            if (hasRegisteredDamagesPerRental)
+                return new DbOperationResponse<Contract>("Deletion of contracts with reported damages is forbidden.");
+
+            try
+            {
+                await _repository.RemoveAsync(item);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new DbOperationResponse<Contract>(item);
+            }
+            catch (Exception ex)
+            {
+                return new DbOperationResponse<Contract>($"An error occurred when deleting the item: {ex.Message}");
             }
         }
     }

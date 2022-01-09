@@ -37,7 +37,7 @@ namespace RentalAPI.Persistance
                                             rentable.Rentals.Where(rental =>
                                                 rental.RentedItemId == rentable.Id &&
                                                 (endDate < rental.StartDate ||
-                                                    startDate > rental.EndDate))
+                                                 startDate > rental.EndDate))
                                                 .Any()))
                                             .AnyAsync();
 
@@ -52,7 +52,7 @@ namespace RentalAPI.Persistance
                                             rentable.Rentals.Where(rental =>
                                                 rental.RentedItemId == rentable.Id &&
                                                 (endDate < rental.StartDate ||
-                                                    startDate > rental.EndDate))
+                                                 startDate > rental.EndDate))
                                                 .Any()))
                                             .Include(item => item.Category)
                                             .ToListAsync();

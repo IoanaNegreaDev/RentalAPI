@@ -621,6 +621,7 @@ namespace RentalAPI.Migrations
                         .WithMany("Rentals")
                         .HasForeignKey("ContractId")
                         .HasConstraintName("FK_Rentals_Contracts")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RentalAPI.Models.Rentable", "RentedItem")

@@ -139,8 +139,7 @@ namespace RentalAPI.Persistance
                             TankCapacity = 32,
                             PassangersSeatsCount = 9
                     },
-
-                    new Minivan
+                new Minivan
                     {
                             Id = 6,
                             CategoryId = 2,
@@ -174,7 +173,7 @@ namespace RentalAPI.Persistance
                 entity.HasOne(d => d.Contract)
                     .WithMany(p => p.Rentals)
                     .HasForeignKey(d => d.ContractId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Rentals_Contracts");  
             });
 
@@ -197,31 +196,30 @@ namespace RentalAPI.Persistance
 
             modelBuilder.Entity<Sedan>().HasData
               (
-                  new Sedan
-                  {
-                      Id = 7,
-                      CategoryId = 3,
-                      PricePerDay = 18,
-                      Producer = "Peugeot",
-                      Model = "Special",
-                      RegistrationNumber = "TM98RNT",
-                      FuelId = 2,
-                      TankCapacity = 20,
-                      Color = "Red"
-                  },
-                  new Sedan
-                  {
-                      Id = 8,
-                      CategoryId = 3,
-                      PricePerDay = 15,
-                      Producer = "Dacia",
-                      Model = "Logan",
-                      RegistrationNumber = "TM10RNT",
-                      FuelId = 2,
-                      TankCapacity = 20,
-                      Color = "White"
-                  },
-
+                new Sedan
+                {
+                    Id = 7,
+                    CategoryId = 3,
+                    PricePerDay = 18,
+                    Producer = "Peugeot",
+                    Model = "Special",
+                    RegistrationNumber = "TM98RNT",
+                    FuelId = 2,
+                    TankCapacity = 20,
+                    Color = "Red"
+                },
+                new Sedan
+                {
+                    Id = 8,
+                    CategoryId = 3,
+                    PricePerDay = 15,
+                    Producer = "Dacia",
+                    Model = "Logan",
+                    RegistrationNumber = "TM10RNT",
+                    FuelId = 2,
+                    TankCapacity = 20,
+                    Color = "White"
+                },
                 new Sedan
                 {
                     Id = 9,

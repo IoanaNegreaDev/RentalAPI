@@ -10,8 +10,8 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220106221849_Initial")]
-    partial class Initial
+    [Migration("20220109171744_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -623,6 +623,7 @@ namespace RentalAPI.Migrations
                         .WithMany("Rentals")
                         .HasForeignKey("ContractId")
                         .HasConstraintName("FK_Rentals_Contracts")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RentalAPI.Models.Rentable", "RentedItem")

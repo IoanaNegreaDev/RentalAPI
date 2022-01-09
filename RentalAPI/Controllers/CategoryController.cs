@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
-using RentalAPI.DTO;
+using RentalAPI.DTOs;
 using RentalAPI.Models;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;

@@ -7,6 +7,7 @@ namespace RentalAPI.DTOs
 {
     public class DamageDTO
     {
+        public int Id { get; set; }
         public int RentableItemId { get; set; }
         public string DamageDescription { get; set; }
         public float DamageCost { get; set; }
