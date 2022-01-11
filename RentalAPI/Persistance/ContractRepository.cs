@@ -19,7 +19,7 @@ namespace RentalAPI.Persistance
 						.ThenInclude(item => item.Damage)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentedItem)
-					.Include(item => item.Client)
+					.Include(item => item.User)
 					.Include(item=>item.Currency)
 					.ToListAsync();
 
@@ -31,7 +31,6 @@ namespace RentalAPI.Persistance
 						.ThenInclude(item => item.Damage)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentedItem)
-					.Include(item => item.Client)
 					.Include(item => item.Currency)
 				    .FirstOrDefaultAsync();
 

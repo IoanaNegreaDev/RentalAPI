@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using RentalAPI.Models;
@@ -7,7 +9,7 @@ using RentalAPI.Models;
 
 namespace RentalAPI.Persistance
 {
-    public partial class RentalDbContext : DbContext
+    public partial class RentalDbContext : IdentityDbContext<RentalUser>
     {
         public RentalDbContext()
         {
@@ -19,7 +21,6 @@ namespace RentalAPI.Persistance
         }
 
         public virtual DbSet<Domain> Domains { get; set; }
-        public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<Currency> Currencies { get; set; }
         public virtual DbSet<Damage> Damages { get; set; }
@@ -33,7 +34,7 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Truck> Trucks { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<VehicleRental> VehicleRentals { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+       // public virtual DbSet<User> Users { get; set; }
 
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -60,20 +61,13 @@ namespace RentalAPI.Persistance
                 new Domain { Id = 1, Name = "Vehicles" }
             );
 
-            modelBuilder.Entity<Client>(entity =>
-            {
-                entity.Property(e => e.Mobile).IsRequired();
-
-                entity.Property(e => e.Name).IsRequired();
-            });
-
             modelBuilder.Entity<Contract>(entity =>
             {
-                entity.HasOne(d => d.Client)
+              /*  entity.HasOne(d => d.Client)
                      .WithMany(p => p.Contracts)
                      .HasForeignKey(d => d.ClientId)
                      .OnDelete(DeleteBehavior.ClientSetNull)
-                     .HasConstraintName("FK_Contracts_Clients");
+                     .HasConstraintName("FK_Contracts_Clients");*/
 
                 entity.HasOne(d => d.Currency)
                     .WithMany(p => p.Contracts)
@@ -317,22 +311,18 @@ namespace RentalAPI.Persistance
 
             modelBuilder.Entity<VehicleRental>().ToTable("VehicleRentals");
 
-            modelBuilder.Entity<User>().ToTable("Users");
-            modelBuilder.Entity<User>().HasData
-            (
-                new User { Id = 1, UserName = "Administrator", Password = "Administrator"}
-            );
+            modelBuilder.Entity<RentalUser>().ToTable("Users");
+     
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.RefreshTokens)
-                    .HasForeignKey(d => d.UserId)
+                    .HasForeignKey(d => d.RentalUserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RefreshTokens_User");
             });
-
-            OnModelCreatingPartial(modelBuilder);
+            base.OnModelCreating(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

@@ -10,8 +10,8 @@ namespace RentalAPI.Extensions
     {
         public static List<string> GetErrorMessages(this ModelStateDictionary dictionary)
         {
-            return dictionary.SelectMany(m => m.Value.Errors)
-                             .Select(m => m.ErrorMessage)
+            return dictionary.SelectMany(model => model.Value.Errors)
+                             .Select(model => model.ErrorMessage)
                              .ToList();
         }
     }

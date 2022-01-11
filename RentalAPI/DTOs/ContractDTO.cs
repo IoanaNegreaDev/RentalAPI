@@ -13,12 +13,12 @@ namespace RentalAPI.DTOs
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
         public DateTime CreationDate { get; set; }
-        public virtual ClientDTO Client { get; set; }
+        public UserDTO User { get; set; }
         virtual public CurrencyDTO Currency { get; set; }
         public float TotalBasePriceInPaymentCurrency { get; set; }
         public float TotalDamagePriceInPaymentCurrency { get; set; }
+        public float TotalExtraChargesInPaymentCurrency { get; set; }
         public float TotalPriceInPaymentCurrency { get; set; }
-
         virtual public ICollection<RentalDTO> Rentals { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalAPI.Mapping;
+using RentalAPI.Models;
 using RentalAPI.Persistance;
 using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
@@ -38,7 +40,36 @@ namespace RentalAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options =>
+            services.AddIdentity<RentalUser, IdentityRole>(config =>
+                     {
+                         config.User.RequireUniqueEmail = true;
+                         config.Password.RequireNonAlphanumeric = false;
+                     })
+                    .AddEntityFrameworkStores<RentalDbContext>();       
+
+            services.AddAuthentication().AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "me",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("JWTSettings:SecretKey").Value)),
+                    ValidAudience = "world",
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                        .RequireAuthenticatedUser()
+                        .Build();
+              
+            }); 
+
+             services.AddMvc(options =>
                            {
                                 options.EnableEndpointRouting = false;
                                 options.Filters.Add(new ValidationFilter());
@@ -61,9 +92,6 @@ namespace RentalAPI
             services.AddScoped<ICurrencyService, CurrencyService>();
             services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
-            services.AddScoped<IClientRepository, ClientRepository>();
-            services.AddScoped<IClientService, ClientService>();
-            
             services.AddScoped<IDamageRepository, DamageRepository>();
             services.AddScoped<IDamageService, DamageService>();
 
@@ -72,7 +100,10 @@ namespace RentalAPI
      
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IContractService, ContractService>();
-           
+
+            services.AddScoped<IRentalRepository, RentalRepository>();
+            services.AddScoped<IRentalService, RentalService>();
+
             services.AddScoped<IVehicleRentalRepository, VehicleRentalRepository>();
             services.AddScoped<IVehicleRentalService, VehicleRentalService>();
 
@@ -81,12 +112,15 @@ namespace RentalAPI
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddControllers().AddNewtonsoftJson();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication();
+            services.AddAuthorization();
+
+          /*  services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null)
                     .AddJwtBearer(options =>
@@ -112,7 +146,7 @@ namespace RentalAPI
                 options.AddPolicy("BasicAuthentication", new AuthorizationPolicyBuilder("BasicAuthentication")
                         .RequireAuthenticatedUser()
                         .Build());
-            });
+            });*/
 
             services.AddOData();
             var mapperConfig = new MapperConfiguration(mc =>

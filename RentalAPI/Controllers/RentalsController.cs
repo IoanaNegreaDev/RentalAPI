@@ -11,21 +11,24 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/vehiclerentals")]
-    public class VehicleRentalsController : Controller
+    [Route("api/rentals")]
+    public class RentalsController : Controller
     {
-        private readonly IVehicleRentalService _rentalService;
+        private readonly IRentalService _rentalService;
+        private readonly IVehicleRentalService _vehicleRentalService;
         private readonly IMapper _mapper;
-        public VehicleRentalsController(IVehicleRentalService rentalService,
+        public RentalsController(IRentalService rentalService,
+                                        IVehicleRentalService vehicleRentalService,
                                         IMapper mapper)
         {
             _rentalService = rentalService;
+            _vehicleRentalService = vehicleRentalService;
             _mapper = mapper;
         }
 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<VehicleRental>>> Get()
+        public async Task<ActionResult<IEnumerable<Rental>>> Get()
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -34,14 +37,14 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<Rental>, IEnumerable<VehicleRentalDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<Rental>, IEnumerable<RentalDTO>>(result);
 
             return Ok(resultDTO);
         }
 
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<VehicleRental>> Get(int id)
+        public async Task<ActionResult<Rental>> Get(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -50,12 +53,12 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<Rental, VehicleRentalDTO>(result);
+            var resultDTO = _mapper.Map<Rental, RentalDTO>(result);
 
             return Ok(resultDTO);
         }
 
-        [HttpPost]
+        [HttpPost("vehicle")]
         public async Task<IActionResult> Add(RentalCreationDTO newRental)
         {
             if (!ModelState.IsValid)
@@ -63,11 +66,11 @@ namespace RentalAPI.Controllers
 
             var rental = _mapper.Map<RentalCreationDTO, VehicleRental>(newRental);
 
-            var result = await _rentalService.AddAsync(rental);
+            var result = await _vehicleRentalService.AddAsync(rental);
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var resultDTO = _mapper.Map<VehicleRental, VehicleRentalDTO>(result._entity);
+            var resultDTO = _mapper.Map<Rental, RentalDTO>(result._entity);
 
             return CreatedAtAction(nameof(Get),
                         ControllerContext.RouteData.Values["controller"].ToString(),
@@ -75,9 +78,8 @@ namespace RentalAPI.Controllers
                         resultDTO);
         }
 
-        [HttpPut]
+        [HttpPut("vehicle")]
         [EnableQuery]
-        [BasicAuthorization]
         public async Task<IActionResult> Update(int id, VehicleRentalUpdateDTO updateDTO)
         {
             if (!ModelState.IsValid)
@@ -89,18 +91,17 @@ namespace RentalAPI.Controllers
             var rental = _mapper.Map<VehicleRentalUpdateDTO, VehicleRental>(updateDTO);
             rental.Id = id;
 
-            var result = await _rentalService.UpdateAsync(rental);
+            var result = await _vehicleRentalService.UpdateAsync(rental);
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var resultDTO = _mapper.Map<VehicleRental, VehicleRentalDTO>(result._entity);
+            var resultDTO = _mapper.Map<Rental, RentalDTO>(result._entity);
 
             return Ok(resultDTO);
         }
 
         [HttpDelete]
         [EnableQuery]
-        [BasicAuthorization]
         public async Task<IActionResult> Delete(int id)
         {
             if (!ModelState.IsValid)

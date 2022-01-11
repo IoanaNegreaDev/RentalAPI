@@ -33,38 +33,33 @@ namespace RentalAPI.Mapping
             CreateMap<Fuel, FuelDTO>();
             CreateMap<FuelDTO, Fuel>();
 
-            CreateMap<Client, ClientDTO>();
-            CreateMap<ClientDTO, Client>();
-            CreateMap<ClientCreationDTO, Client>();
-            CreateMap<ClientUpdateDTO, Client>();
-
             CreateMap<Currency, CurrencyDTO>();
 
             CreateMap<ContractCreationDTO, Contract>();
-            CreateMap<ContractCreationDTO, Client>();
             CreateMap<Contract, ContractDTO>()
                 .ForMember(dest => dest.TotalBasePriceInPaymentCurrency, 
                             opt => opt.MapFrom(new TotalBasePriceResolver())) 
                 .ForMember(dest => dest.TotalDamagePriceInPaymentCurrency,
                             opt => opt.MapFrom(new TotalDamagePriceResolver()))
+                .ForMember(dest => dest.TotalExtraChargesInPaymentCurrency,
+                            opt => opt.MapFrom(new TotalExtraChargesResolver()))
                 .ForMember(dest => dest.TotalPriceInPaymentCurrency,
                             opt => opt.MapFrom(new TotalPriceResolver()))
                 .IncludeAllDerived();
-            CreateMap<ContractDTO, Contract>().IncludeAllDerived();
-            CreateMap<Contract, VehicleContractDTO>()
-              .ForMember(dest => dest.TotalFullTankPriceInPaymentCurrency,
-                          opt => opt.MapFrom(new TotalFullTankPriceResolver()));
 
             CreateMap<RentalCreationDTO, VehicleRental>();
-            
+            CreateMap<RentalCreationDTO, Rental>();
+
             CreateMap<Rental, RentalDTO>()
                 .ForMember(dest => dest.DamagePrice, opt => opt.MapFrom(new RentalDamageCostResolver()))
                 .IncludeAllDerived();
 
             CreateMap<RentalDTO, Rental>().IncludeAllDerived();
+            CreateMap<Rental, RentalDTO>().IncludeAllDerived();
 
             CreateMap<VehicleRental, VehicleRentalDTO>();
             CreateMap<VehicleRentalDTO, VehicleRental>();
+
             CreateMap<VehicleRentalUpdateDTO, VehicleRental>();
 
             CreateMap<RentalDamage, RentalDamageDTO>();
@@ -76,8 +71,9 @@ namespace RentalAPI.Mapping
             CreateMap<RentalDamageCreationDTO, RentalDamage>();
             CreateMap<DamageIndirectCreationDTO, Damage>();
 
-            CreateMap<UserCreationDTO, User>();
-            CreateMap<User, UserDTO>();
+            CreateMap<UserRegistrationDTO, UserCredentials>();
+            CreateMap<UserLoginDTO, UserCredentials>();
+            CreateMap<RentalUser, UserDTO>();
         }
     }
 }

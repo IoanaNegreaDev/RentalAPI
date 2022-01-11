@@ -10,13 +10,14 @@ namespace RentalAPI.DTOs
     {
         public int Id { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
         public DateTime EndDate { get; set; }
+           
         public int ContractId { get; set; }
         public float BasePrice { get; set; }
         public float DamagePrice { get; set; }

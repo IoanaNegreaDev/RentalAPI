@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
-    [ApiController]
+  /*  [ApiController]
     [Route("api/users")]
     public class AuthentificationController : Controller
     {
@@ -26,8 +26,8 @@ namespace RentalAPI.Controllers
         }
 
         [HttpGet]
-      //  [EnableQuery]
-        public async Task<ActionResult<IEnumerable<User>>> Get()
+        [EnableQuery]
+        public async Task<ActionResult<IEnumerable<RentalUser>>> Get()
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -36,14 +36,14 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<User>, IEnumerable<UserDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<RentalUser>, IEnumerable<UserDTO>>(result);
 
             return Ok(resultDTO);
         }
 
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<User>>> Get(int id)
+        public async Task<ActionResult<IEnumerable<RentalUser>>> Get(int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -52,7 +52,7 @@ namespace RentalAPI.Controllers
             if (result== null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<User, UserDTO>(result);
+            var resultDTO = _mapper.Map<RentalUser, UserDTO>(result);
 
             return Ok(resultDTO);
         }
@@ -64,7 +64,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _mapper.Map<UserCreationDTO, User>(userDTO);
+            var user = _mapper.Map<UserCreationDTO, RentalUser>(userDTO);
 
             var result = await _service.AddUserWithTokenAsync(user);
             if (!result.Success)
@@ -79,7 +79,7 @@ namespace RentalAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _mapper.Map<UserCreationDTO, User>(userDTO);
+            var user = _mapper.Map<UserCreationDTO, RentalUser>(userDTO);
 
             var result = await _service.FindByUserNameAndPasswordAsync(user.UserName, user.Password);
             if (result == null)
@@ -91,5 +91,5 @@ namespace RentalAPI.Controllers
 
             return Ok(refreshTokenResult._entity);
         }
-    }
+    }*/
 }

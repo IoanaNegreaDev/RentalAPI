@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Persistance.Interfaces
 {
-    public interface IUserRepository: IGenericRepository<User>
+    public interface IUserRepository: IGenericRepository<RentalUser>
     {
-        public Task<User> FindByUserNameAndPasswordIncludeRefsAsync(string userName, string password);
+        public Task<RentalUser> FindByIdAsync(string name);
+        public Task<RentalUser> GetUserWithTokenAsync(string token);    
     }
 }

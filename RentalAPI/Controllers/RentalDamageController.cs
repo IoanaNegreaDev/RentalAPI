@@ -78,7 +78,6 @@ namespace RentalAPI.Controllers
 
         [HttpDelete]
         [EnableQuery]
-        [BasicAuthorization]
         public async Task<IActionResult> Delete(int id)
         {
             if (!ModelState.IsValid)

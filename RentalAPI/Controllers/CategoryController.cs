@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/categories")]
     public class CategoriesController : Controller

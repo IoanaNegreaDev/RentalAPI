@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RentalAPI.Persistance.Interfaces
+namespace RentalAPI.Services.Interfaces
 {
-    public interface IVehicleContractRepository:IContractRepository
+    public interface IVehicleContractService:IContractService
     {
     }
 }

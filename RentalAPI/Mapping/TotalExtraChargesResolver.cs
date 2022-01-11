@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Mapping
 {
-    public class TotalFullTankPriceResolver : IValueResolver<Contract, VehicleContractDTO, float>
+    public class TotalExtraChargesResolver : IValueResolver<Contract, ContractDTO, float>
     {
-        public float Resolve(Contract source, VehicleContractDTO destination, float member, ResolutionContext context)
+        public float Resolve(Contract source, ContractDTO destination, float member, ResolutionContext context)
             => source.Rentals
                        .Where(item => item != null &&
                                       item.GetType() == typeof(VehicleRental) &&

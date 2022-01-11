@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -11,13 +12,13 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/vehiclerentalcontracts")]
+    [Route("api/contracts")]
+   
     public class VehiclesRentalContractsController : Controller
     {
         private readonly IContractService _service;
         private readonly IMapper _mapper;
         public VehiclesRentalContractsController(IContractService contractService,
-                                                 IClientService clientService,
                                                  ICurrencyService currencyService,
                                                  IMapper mapper)
         {
@@ -36,7 +37,7 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<Contract>, IEnumerable<VehicleContractDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<Contract>, IEnumerable<ContractDTO>>(result);
         
             return Ok(resultDTO);
         }
@@ -52,24 +53,23 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<Contract, VehicleContractDTO>(result);
+            var resultDTO = _mapper.Map<Contract, ContractDTO>(result);
 
             return Ok(resultDTO);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddContract(ContractCreationDTO contractDTO)
+        [Authorize]
+        [HttpPost("VehicleAut")]
+        public async Task<IActionResult> AddContract(int PaymentCurrencyId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var contract = _mapper.Map<ContractCreationDTO, Contract>(contractDTO);
-
-            var result = await _service.AddAsync(contract);
+            var result = await _service.AddAsync(User.Identity.Name, PaymentCurrencyId);
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var resultDTO = _mapper.Map<Contract, VehicleContractDTO>(result._entity);
+            var resultDTO = _mapper.Map<Contract, ContractDTO>(result._entity);
 
             return CreatedAtAction(nameof(Get),
                         ControllerContext.RouteData.Values["controller"].ToString(),
@@ -79,7 +79,6 @@ namespace RentalAPI.Controllers
 
         [HttpDelete]
         [EnableQuery]
-        [BasicAuthorization]
         public async Task<IActionResult> Delete(int id)
         {
             if (!ModelState.IsValid)

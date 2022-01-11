@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.ValidationFilters
 {
-    public class UserCreationValidator : AbstractValidator<UserCreationDTO>
+    public class UserRegistrationValidator : AbstractValidator<UserRegistrationDTO>
     {
-        public UserCreationValidator()
+        public UserRegistrationValidator()
         {
             RuleFor(item => item.UserName).NotEmpty().NotNull().MaximumLength(100);
             RuleFor(item => item.Password).NotEmpty().NotNull().MaximumLength(100);
