@@ -23,6 +23,6 @@ namespace RentalAPI.DTOs
         public float DamagePrice { get; set; }
 
         public virtual RentableDTO RentedItem { get; set; }
-        public virtual ICollection<RentalDamageDTO> RentalDamages { get; set; }
+        public virtual ICollection<DamageDTO> RentalDamages { get; set; }
     }
 }

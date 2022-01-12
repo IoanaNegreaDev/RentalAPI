@@ -18,6 +18,6 @@ namespace RentalAPI.Models
 
         public virtual Rentable RentedItem { get; set; } 
         public virtual Contract Contract { get; set; }
-        public virtual ICollection<RentalDamage> RentalDamages { get; set; } = new HashSet<RentalDamage>();
+        public virtual ICollection<Damage> RentalDamages { get; set; } = new HashSet<Damage>();
     }
 }

@@ -13,8 +13,7 @@ namespace RentalAPI.Services
            => contract.Rentals
                     .Where(item => item != null)
                     .Sum(item => (float)(item.RentalDamages
-                                             .Where(item => item.Damage != null)
-                                             .Sum(item => item.Damage.DamageCost)))
+                                             .Sum(item => item.DamageCost)))
                     * contract.ExchangeRate;
 
         public float ExtractTotalBasePrice(Contract contract)

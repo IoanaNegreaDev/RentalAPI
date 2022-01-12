@@ -12,7 +12,7 @@ namespace RentalAPI.Mapping
     {
         public float Resolve(Rental source, RentalDTO destination, float member, ResolutionContext context)
              => source.RentalDamages
-                    .Where(item => item != null && item.Damage != null)
-                    .Sum(item => item.Damage.DamageCost);
+                    .Where(item => item != null)
+                    .Sum(item => item.DamageCost);
     }
 }

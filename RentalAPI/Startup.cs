@@ -107,8 +107,8 @@ namespace RentalAPI
             services.AddScoped<IVehicleRentalRepository, VehicleRentalRepository>();
             services.AddScoped<IVehicleRentalService, VehicleRentalService>();
 
-            services.AddScoped<IRentalDamageRepository, RentalDamageRepository>();
-            services.AddScoped<IRentalDamageService, RentalDamageService>();
+            services.AddScoped<IDamageRepository,DamageRepository>();
+            services.AddScoped<IDamageService, DamageService>();
 
             services.AddScoped<ICurrencyRateExchanger, CurrencyRateExchanger>();
 

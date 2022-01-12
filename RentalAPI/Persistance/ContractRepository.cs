@@ -16,7 +16,6 @@ namespace RentalAPI.Persistance
 			=> await _table
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentalDamages)
-						.ThenInclude(item => item.Damage)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentedItem)
 					.Include(item => item.User)
@@ -28,7 +27,6 @@ namespace RentalAPI.Persistance
 					.Where(item => item.Id == id)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentalDamages)
-						.ThenInclude(item => item.Damage)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentedItem)
 					.Include(item => item.Currency)

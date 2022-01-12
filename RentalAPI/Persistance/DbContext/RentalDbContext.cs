@@ -28,7 +28,6 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Minivan> Minivans { get; set; }
         public virtual DbSet<Rentable> Rentables { get; set; }
         public virtual DbSet<Rental> Rentals { get; set; }
-        public virtual DbSet<RentalDamage> RentalDamages { get; set; }
         public virtual DbSet<Sedan> Sedans { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Truck> Trucks { get; set; }
@@ -94,6 +93,12 @@ namespace RentalAPI.Persistance
                     .HasForeignKey(d => d.RentableItemId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Damages_Rentables");
+
+                entity.HasOne(d => d.Rental)
+                    .WithMany(p => p.RentalDamages)
+                    .HasForeignKey(d => d.OccuredInRentalId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Damages_Rentals");
             });
 
             modelBuilder.Entity<Fuel>(entity =>
@@ -169,21 +174,6 @@ namespace RentalAPI.Persistance
                     .HasForeignKey(d => d.ContractId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Rentals_Contracts");  
-            });
-
-            modelBuilder.Entity<RentalDamage>(entity =>
-            {
-                entity.HasOne(d => d.Rental)
-                    .WithMany(p => p.RentalDamages)
-                    .HasForeignKey(d => d.RentalId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_RentalDamages_Rentals");
-
-                entity.HasOne(d => d.Damage)
-                    .WithMany(p => p.RentalDamages)
-                    .HasForeignKey(d => d.DamageId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_RentalDamages_Damage");
             });
 
             modelBuilder.Entity<Sedan>().ToTable("Sedans");

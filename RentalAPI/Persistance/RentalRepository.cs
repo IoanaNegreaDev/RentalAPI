@@ -16,12 +16,12 @@ namespace RentalAPI.Persistance
 		override public async Task<IEnumerable<Rental>> ListAsync()
 			=> await _table
 						.Include(item => item.RentedItem).ThenInclude(item =>item.Category).ThenInclude(item=>item.Domain)
-						.Include(item => item.RentalDamages).ThenInclude(item => item.Damage)
+						.Include(item => item.RentalDamages)
 						.ToListAsync();
 		override public async Task<Rental> FindByIdAsync(int id)
 			=> await _table.Where(item => item.Id == id)
 						.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
-						.Include(item => item.RentalDamages).ThenInclude(item => item.Damage)
+						.Include(item => item.RentalDamages)
 						.FirstOrDefaultAsync();
 	}	
 }

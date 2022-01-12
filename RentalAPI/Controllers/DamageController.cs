@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/rentaldamages")]
-    public class RentalDamagesController : Controller
+    [Route("api/damages")]
+    public class DamagesController : Controller
     {
-        private readonly IRentalDamageService _service;
+        private readonly IDamageService _service;
         private readonly IMapper _mapper;
-        public RentalDamagesController(IRentalDamageService rentalDamageService,
-                                        IMapper mapper)
+        public DamagesController(IDamageService rentalDamageService,
+                                 IMapper mapper)
         {
             _service = rentalDamageService;
             _mapper = mapper;
@@ -25,7 +25,7 @@ namespace RentalAPI.Controllers
 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<RentalDamageDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<DamageDTO>>> Get()
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -34,7 +34,7 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<RentalDamage>, IEnumerable<RentalDamageDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<Damage>, IEnumerable<DamageDTO>>(result);
 
             return Ok(resultDTO);
         }
@@ -51,24 +51,24 @@ namespace RentalAPI.Controllers
             if (result == null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<RentalDamage, RentalDamageDTO>(result);
+            var resultDTO = _mapper.Map<Damage, DamageDTO>(result);
 
             return Ok(resultDTO);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(RentalDamageCreationDTO newDamageDTO)
+        public async Task<IActionResult> Add(DamageCreationDTO newDamageDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var newDamage = _mapper.Map<RentalDamageCreationDTO, RentalDamage>(newDamageDTO);
+            var newDamage = _mapper.Map<DamageCreationDTO, Damage>(newDamageDTO);
 
             var result = await _service.AddAsync(newDamage);
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            var resultDTO = _mapper.Map<RentalDamage, RentalDamageDTO>(result._entity);
+            var resultDTO = _mapper.Map<Damage, DamageDTO>(result._entity);
 
             return CreatedAtAction(nameof(Get), 
                                     ControllerContext.RouteData.Values["controller"].ToString(), 

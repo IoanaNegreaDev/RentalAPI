@@ -12,6 +12,7 @@ namespace RentalAPI.Controllers
 {
     [ApiController]
     [Route("api/rentals")]
+
     public class RentalsController : Controller
     {
         private readonly IRentalService _rentalService;
