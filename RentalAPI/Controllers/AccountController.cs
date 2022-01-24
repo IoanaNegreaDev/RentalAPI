@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/accounts")]
+    [Route("api/users")]
     public class AccountController : Controller
     {
        
@@ -67,6 +67,7 @@ namespace RentalAPI.Controllers
         {
             var refreshToken = HttpContext.Request.Cookies["refreshToken"];
             await _service.LogoutAsync(refreshToken);
+            
             return Ok();
         }
 

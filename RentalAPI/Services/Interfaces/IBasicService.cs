@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface IBaseService<T> where T : class      
+    public interface IBasicService<T> where T : class      
     {
         public Task<IEnumerable<T>> ListAsync();
         public Task<DbOperationResponse<T>> AddAsync(T item);

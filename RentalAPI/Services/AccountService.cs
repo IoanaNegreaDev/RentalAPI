@@ -26,6 +26,8 @@ namespace RentalAPI.Services
         protected readonly IUserRepository _repository;
         private readonly UserManager<RentalUser> _userManager;
         private readonly SignInManager<RentalUser> _userLogin;
+        protected readonly string _issuer;
+        protected readonly string _audience;
 
         public AccountService(UserManager<RentalUser> userManager,
                              SignInManager<RentalUser> userLogin,
@@ -35,17 +37,19 @@ namespace RentalAPI.Services
 
         {
             _secretKey = Encoding.ASCII.GetBytes(configuration.GetSection("JWTSettings:SecretKey").Value);
+            _issuer = configuration.GetSection("JWTSettings:ValidIssuer").Value;
+            _audience = configuration.GetSection("JWTSettings:ValidAudience").Value;
             _unitOfWork = unitOfWork;
             _userLogin = userLogin;
             _userManager = userManager;
             _repository = repository;
         }
 
-        public async Task<DbOperationResponse<UserWithToken>> RegisterAsync(UserCredentials credentials)
+        public async Task<DbOperationResponse<IdentityResult>> RegisterAsync(UserCredentials credentials)
         {
             var dbUser = await _userManager.FindByNameAsync(credentials.UserName);
             if (dbUser != null)
-                return new DbOperationResponse<UserWithToken>("User already exists.");
+                return new DbOperationResponse<IdentityResult>("User already exists.");
 
             dbUser = new RentalUser()
             {
@@ -58,13 +62,13 @@ namespace RentalAPI.Services
                 var result = await _userManager.CreateAsync(dbUser, credentials.Password);
 
                 if (!result.Succeeded)
-                    return new DbOperationResponse<UserWithToken>("Failed to register. " + result.Errors);
+                    return new DbOperationResponse<IdentityResult>("Failed to register. " + result.Errors);
 
-                return new DbOperationResponse<UserWithToken>("User Reigstration Successful.");
+                return new DbOperationResponse<IdentityResult>(result);
             }
             catch (Exception ex)
             {
-                return new DbOperationResponse<UserWithToken>("Failed to add user with token to the database. " + ex.Message);
+                return new DbOperationResponse<IdentityResult>("Failed to add user with token to the database. " + ex.Message);
             }
         }
 
@@ -124,12 +128,13 @@ namespace RentalAPI.Services
                 return new DbOperationResponse<UserWithToken>("Internal error. Invalid user pointer. ");
 
             RefreshToken refreshToken = GenerateRefreshToken();
-            var accessToken = GenerateAccessToken(user.Id);
+            var accessToken = GenerateAccessToken(user);
 
             try
             {
                 if (user.RefreshTokens == null)
                     user.RefreshTokens = new List<RefreshToken>();
+
                 user.RefreshTokens.Add(refreshToken);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -162,18 +167,21 @@ namespace RentalAPI.Services
             return refreshToken;
         }
 
-        private string GenerateAccessToken(string userId)
+        private string GenerateAccessToken(RentalUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, Convert.ToString(userId))
+                    new Claim("Id", Convert.ToString(user.Id)),
+                    new Claim("PhoneNumber", user.PhoneNumber),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
-                Issuer = "me",
-                Audience = "world",
+                Issuer = _issuer,
+                Audience = _audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(_secretKey),
                                                             SecurityAlgorithms.HmacSha256Signature)
             };

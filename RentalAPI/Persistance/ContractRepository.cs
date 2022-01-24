@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentalAPI.Models;
 using RentalAPI.Persistance.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,8 @@ namespace RentalAPI.Persistance
     public class ContractRepository: GenericRepository<Contract>, IContractRepository
     {
 		public ContractRepository(RentalDbContext context) : base(context)
-		{ }
+		{
+		}
 
 		override public async Task<IEnumerable<Contract>> ListAsync()
 			=> await _table

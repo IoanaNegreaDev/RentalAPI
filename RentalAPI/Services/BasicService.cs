@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class BaseService<T, TRepository> : IBaseService<T> 
+    public class BasicService<T, TRepository> : IBasicService<T> 
         where T:class
         where TRepository : IGenericRepository<T>
     {
         protected readonly TRepository _repository;
         protected readonly IUnitOfWork _unitOfWork;
 
-        public BaseService(TRepository repository, IUnitOfWork unitOfWork)
+        public BasicService(TRepository repository, IUnitOfWork unitOfWork)
         {
             this._repository = repository;
             this._unitOfWork = unitOfWork;

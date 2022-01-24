@@ -8,20 +8,23 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Persistance
 {
-    public class RentalRepository : GenericRepository<Rental>, IRentalRepository
+    public class RentalRepository: GenericRepository<Rental>, IRentalRepository
 	{
 		public RentalRepository(RentalDbContext context) : base(context)
-		{ }
+		{
+		}
 
-		override public async Task<IEnumerable<Rental>> ListAsync()
-			=> await _table
-						.Include(item => item.RentedItem).ThenInclude(item =>item.Category).ThenInclude(item=>item.Domain)
-						.Include(item => item.RentalDamages)
-						.ToListAsync();
-		override public async Task<Rental> FindByIdAsync(int id)
-			=> await _table.Where(item => item.Id == id)
+		virtual public async Task<Rental> FindByIdAsync(int contractId, int rentalId)
+		   => await _table.Where(item => item.Id == rentalId && item.ContractId == contractId)
 						.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
 						.Include(item => item.RentalDamages)
 						.FirstOrDefaultAsync();
+
+		virtual public async Task<IEnumerable<Rental>> ListAsync(int contractId)
+			=> await _table
+					.Where(rental => rental.ContractId == contractId)
+					.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
+					.Include(item => item.RentalDamages)
+					.ToListAsync();
 	}	
 }

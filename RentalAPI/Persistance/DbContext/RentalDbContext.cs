@@ -62,12 +62,6 @@ namespace RentalAPI.Persistance
 
             modelBuilder.Entity<Contract>(entity =>
             {
-              /*  entity.HasOne(d => d.Client)
-                     .WithMany(p => p.Contracts)
-                     .HasForeignKey(d => d.ClientId)
-                     .OnDelete(DeleteBehavior.ClientSetNull)
-                     .HasConstraintName("FK_Contracts_Clients");*/
-
                 entity.HasOne(d => d.Currency)
                     .WithMany(p => p.Contracts)
                     .HasForeignKey(d => d.PaymentCurrencyId)

@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Persistance.Interfaces
 {
-    public interface IRentalRepository : IGenericRepository<Rental>
+    public interface IRentalRepository: IGenericRepository<Rental>
     {
+        Task<Rental> FindByIdAsync(int contractId, int id);
+        Task<IEnumerable<Rental>> ListAsync(int contractId);
     }
 }

@@ -8,22 +8,18 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class VehicleRentalService: BaseService<VehicleRental, IVehicleRentalRepository>, IVehicleRentalService
+    public class VehicleRentalService : BaseRentalService<VehicleRental, IRentalRepository>, IVehicleRentalService
     {
-        private readonly IRentableRepository _rentableRepository;
-        private readonly IContractRepository _contractRepository;
-
-        public VehicleRentalService(IVehicleRentalRepository repository, 
+        public VehicleRentalService(IVehicleRentalRepository vehicleRentalRepository, 
                                     IRentableRepository rentableRepository,
                                     IContractRepository contractRepository,
-                                    IUnitOfWork unitOfWork)
-            :base (repository, unitOfWork)
+                                    IUnitOfWork unitOfWork) : 
+            base (vehicleRentalRepository, rentableRepository, contractRepository, unitOfWork)
+          
         {
-            this._rentableRepository = rentableRepository;
-            this._contractRepository = contractRepository;
+        
         }
- 
-        override public async Task<DbOperationResponse<VehicleRental>> AddAsync(VehicleRental rental)
+        override public async Task<DbOperationResponse<VehicleRental>> AddAsync(int contractId, VehicleRental rental)
         {
             var rentedItem = await _rentableRepository.FindByIdAsync(rental.RentedItemId);
             if (rentedItem == null)
@@ -38,7 +34,7 @@ namespace RentalAPI.Services
 
             rental.BasePrice = (float)(rentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
             rental.FullTank = false;
-            rental.FullTankPrice = (float)(rentedItem.TankCapacity * rentedItem.Fuel.PricePerUnit);
+            rental.FullTankPrice = (float)(((Vehicle)rentedItem).TankCapacity * ((Vehicle)rentedItem).Fuel.PricePerUnit);
 
             try
             {              
@@ -49,34 +45,7 @@ namespace RentalAPI.Services
             }
             catch (Exception ex)
             {
-                return new DbOperationResponse<VehicleRental>("Failed to add rental to the database " + ex.Message);
-            }
-        }
-
-        override public async Task<DbOperationResponse<VehicleRental>> UpdateAsync(VehicleRental rental)
-        {
-          
-            var existing = await _repository.FindByIdAsync(rental.Id);
-
-            if (existing == null)
-                return new DbOperationResponse<VehicleRental>("Rental not found.");
-
-            existing.FullTank = rental.FullTank;
-            existing.StartDate = rental.StartDate;
-            existing.EndDate = rental.EndDate;
-            existing.BasePrice = (float)(existing.RentedItem.PricePerDay * (rental.EndDate - rental.StartDate).TotalDays);
-
-            try
-            {
-                _repository.Update(existing);
-                await _unitOfWork.SaveChangesAsync();
-
-                return new DbOperationResponse<VehicleRental>(existing);
-            }
-            catch (Exception ex)
-            {
-                // Do some logging stuff
-                return new DbOperationResponse<VehicleRental>($"An error occurred when updating the rental: {ex.Message}");
+                return new DbOperationResponse<VehicleRental>("Failed to add vehicle rental to the database " + ex.Message);
             }
         }
     }

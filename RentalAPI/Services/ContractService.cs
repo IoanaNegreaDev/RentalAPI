@@ -10,16 +10,18 @@ using System.Collections.Generic;
 namespace RentalAPI.Services
 {
     public class ContractService: 
-        BaseService<Contract, IContractRepository>,  
+        BasicService<Contract, IContractRepository>,  
         IContractService
     {
         private ICurrencyRateExchanger _currencyExchanger;
         private ICurrencyRepository _currencyRepository;
         private IUserRepository _userRepository;
+
         public ContractService(IContractRepository repository, 
                                       IUnitOfWork unitOfWork, 
                                       ICurrencyRateExchanger currencyExchanger,
                                       ICurrencyRepository currencyRepository,
+
                                        IUserRepository userRepository
 
             )
@@ -56,6 +58,7 @@ namespace RentalAPI.Services
                 item.ExchangeRate = exchangeRateResult._entity;
                 item.CreationDate = DateTime.Today;
 
+             
                 await _repository.AddAsync(item);
                 await _unitOfWork.SaveChangesAsync();
                 return new DbOperationResponse<Contract>(item);
@@ -92,7 +95,7 @@ namespace RentalAPI.Services
                     User = dbUser,
                     PaymentCurrencyId = paymentCurrencyId,
                     ExchangeRate = exchangeRateResult._entity,
-                    CreationDate = DateTime.Today
+                    CreationDate = DateTime.Today,
                 };
 
                 await _repository.AddAsync(newContract);

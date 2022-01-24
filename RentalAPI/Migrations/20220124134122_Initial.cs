@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RentalAPI.Migrations
 {
-    public partial class IdentityInitial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -271,8 +271,7 @@ namespace RentalAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    PricePerDay = table.Column<float>(type: "real", nullable: false),
-                    DomainId = table.Column<int>(type: "int", nullable: true)
+                    PricePerDay = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -281,33 +280,6 @@ namespace RentalAPI.Migrations
                         name: "FK_Rentables_Categories",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rentables_Domains_DomainId",
-                        column: x => x.DomainId,
-                        principalTable: "Domains",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Damages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RentableItemId = table.Column<int>(type: "int", nullable: false),
-                    DamageDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DamageCost = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Damages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Damages_Rentables",
-                        column: x => x.RentableItemId,
-                        principalTable: "Rentables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -370,26 +342,28 @@ namespace RentalAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RentalDamages",
+                name: "Damages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RentalId = table.Column<int>(type: "int", nullable: false),
-                    DamageId = table.Column<int>(type: "int", nullable: false)
+                    RentableItemId = table.Column<int>(type: "int", nullable: false),
+                    OccuredInRentalId = table.Column<int>(type: "int", nullable: false),
+                    DamageDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DamageCost = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RentalDamages", x => x.Id);
+                    table.PrimaryKey("PK_Damages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RentalDamages_Damage",
-                        column: x => x.DamageId,
-                        principalTable: "Damages",
+                        name: "FK_Damages_Rentables",
+                        column: x => x.RentableItemId,
+                        principalTable: "Rentables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_RentalDamages_Rentals",
-                        column: x => x.RentalId,
+                        name: "FK_Damages_Rentals",
+                        column: x => x.OccuredInRentalId,
                         principalTable: "Rentals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -510,18 +484,18 @@ namespace RentalAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "Rentables",
-                columns: new[] { "Id", "CategoryId", "DomainId", "PricePerDay" },
+                columns: new[] { "Id", "CategoryId", "PricePerDay" },
                 values: new object[,]
                 {
-                    { 1, 1, null, 27f },
-                    { 2, 1, null, 37f },
-                    { 3, 1, null, 31f },
-                    { 4, 2, null, 30f },
-                    { 5, 2, null, 32f },
-                    { 6, 2, null, 20f },
-                    { 7, 3, null, 18f },
-                    { 8, 3, null, 15f },
-                    { 9, 3, null, 16f }
+                    { 1, 1, 27f },
+                    { 2, 1, 37f },
+                    { 3, 1, 31f },
+                    { 4, 2, 30f },
+                    { 5, 2, 32f },
+                    { 6, 2, 20f },
+                    { 7, 3, 18f },
+                    { 8, 3, 15f },
+                    { 9, 3, 16f }
                 });
 
             migrationBuilder.InsertData(
@@ -625,6 +599,11 @@ namespace RentalAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Damages_OccuredInRentalId",
+                table: "Damages",
+                column: "OccuredInRentalId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Damages_RentableItemId",
                 table: "Damages",
                 column: "RentableItemId");
@@ -638,21 +617,6 @@ namespace RentalAPI.Migrations
                 name: "IX_Rentables_CategoryId",
                 table: "Rentables",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rentables_DomainId",
-                table: "Rentables",
-                column: "DomainId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalDamages_DamageId",
-                table: "RentalDamages",
-                column: "DamageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalDamages_RentalId",
-                table: "RentalDamages",
-                column: "RentalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rentals_ContractId",
@@ -688,13 +652,13 @@ namespace RentalAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Damages");
+
+            migrationBuilder.DropTable(
                 name: "Minivans");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
-
-            migrationBuilder.DropTable(
-                name: "RentalDamages");
 
             migrationBuilder.DropTable(
                 name: "Sedans");
@@ -707,9 +671,6 @@ namespace RentalAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Damages");
 
             migrationBuilder.DropTable(
                 name: "Vehicles");

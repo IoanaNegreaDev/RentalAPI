@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/rentables")]
+    [Route("api/categories/{categoryId}/rentables")]
     public class RentablesController : Controller
     {
         private readonly IRentableService _service;
@@ -24,35 +24,55 @@ namespace RentalAPI.Controllers
 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<RentableDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RentableDTO>>> Get(int categoryId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _service.ListAsync();
-            if (result == null)
+            if (categoryId <= 0)
+                return BadRequest("categoryId must be bigger than 0.");
+
+            var result = await _service.ListAsync(categoryId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            if (result._entity == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+            if (((ICollection<Rentable>)result._entity).Count==0)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result._entity);
 
             return Ok(resultDTO);
         }
 
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<RentableDTO>> Get(int id)
+        public async Task<ActionResult<RentableDTO>> Get(int categoryId, int rentableId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (id <= 0)
-                return BadRequest("id must be bigger than 0.");
+            if (categoryId <= 0)
+                return BadRequest("categoryId must be bigger than 0.");
 
-            var result = await _service.FindByIdAsync(id);
-            if (result == null)
+            if (rentableId <= 0)
+                return BadRequest("rentableId must be bigger than 0.");
+
+            var result = await _service.FindByIdAsync(categoryId, rentableId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            if (result._entity == null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<Rentable, RentableDTO>(result);
+            if (((ICollection<Rentable>)result._entity).Count == 0)
+                return NotFound();
+
+            var resultDTO = _mapper.Map<Rentable, RentableDTO>(result._entity);
 
             return Ok(resultDTO);
         }
@@ -67,7 +87,7 @@ namespace RentalAPI.Controllers
                 return BadRequest();
 
             if (categoryId<=0)
-                return BadRequest("CategoryId must be bigger than 0.");
+                return BadRequest("categoryId must be bigger than 0.");
 
             if (startDate > endDate)
                 return BadRequest("EndDate must be bigger than StartDate");
@@ -76,10 +96,17 @@ namespace RentalAPI.Controllers
                 return BadRequest("StartDate must be bigger than today.");
 
             var result = await _service.ListAvailableAsync(categoryId, startDate, endDate);
-            if (result == null)
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            if (result._entity == null)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result);
+            if (((ICollection<Rentable>)result._entity).Count == 0)
+                return NoContent();
+
+            var resultDTO = _mapper.Map<IEnumerable<Rentable>, IEnumerable<RentableDTO>>(result._entity);
 
             return Ok(resultDTO);
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class CurrencyService:BaseService<Currency, ICurrencyRepository>, ICurrencyService
+    public class CurrencyService:BasicService<Currency, ICurrencyRepository>, ICurrencyService
     {
         public CurrencyService(ICurrencyRepository repository, IUnitOfWork unitOfWork) 
             : base(repository, unitOfWork)

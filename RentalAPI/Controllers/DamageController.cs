@@ -3,7 +3,6 @@ using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
-using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Controllers
 {
     [ApiController]
-    [Route("api/damages")]
+    [Route("/api/contracts/{contractId}/rentals/{rentalId}/damages")]
     public class DamagesController : Controller
     {
         private readonly IDamageService _service;
@@ -25,16 +24,25 @@ namespace RentalAPI.Controllers
 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<DamageDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<DamageDTO>>> Get(int contractId, int rentalId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _service.ListAsync();
-            if (result == null)
+            if (contractId <= 0)
+                return BadRequest("contractId must be bigger than 0.");
+
+            if (rentalId <= 0)
+                return BadRequest("rentalId must be bigger than 0.");
+
+            var result = await _service.ListAsync(contractId, rentalId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            if (((ICollection<Damage>)result._entity).Count == 0)
                 return NoContent();
 
-            var resultDTO = _mapper.Map<IEnumerable<Damage>, IEnumerable<DamageDTO>>(result);
+            var resultDTO = _mapper.Map<IEnumerable<Damage>, IEnumerable<DamageDTO>>(result._entity);
 
             return Ok(resultDTO);
         }
@@ -42,29 +50,44 @@ namespace RentalAPI.Controllers
 
         [HttpGet("{id}")]
         [EnableQuery]
-        public async Task<ActionResult<ContractDTO>> Get(int id)
+        public async Task<ActionResult<ContractDTO>> Get(int contractId, int rentalId, int damageId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var result = await _service.FindByIdAsync(id);
-            if (result == null)
+            if (contractId <= 0)
+                return BadRequest("contractId must be bigger than 0.");
+
+            if (rentalId <= 0)
+                return BadRequest("rentalId must be bigger than 0.");
+
+            var result = await _service.FindByIdAsync(contractId, rentalId, damageId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            if (result._entity == null)
                 return NotFound();
 
-            var resultDTO = _mapper.Map<Damage, DamageDTO>(result);
+            var resultDTO = _mapper.Map<Damage, DamageDTO>(result._entity);
 
             return Ok(resultDTO);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(DamageCreationDTO newDamageDTO)
+        public async Task<IActionResult> Add(int contractId, int rentalId, DamageCreationDTO newDamageDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            if (contractId <= 0)
+                return BadRequest("contractId must be bigger than 0.");
+
+            if (rentalId <= 0)
+                return BadRequest("rentalId must be bigger than 0.");
+
             var newDamage = _mapper.Map<DamageCreationDTO, Damage>(newDamageDTO);
 
-            var result = await _service.AddAsync(newDamage);
+            var result = await _service.AddAsync(contractId, rentalId, newDamage);
             if (!result.Success)
                 return BadRequest(result.Message);
 
@@ -78,15 +101,21 @@ namespace RentalAPI.Controllers
 
         [HttpDelete]
         [EnableQuery]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int contractId, int rentalId, int damageId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (id <= 0)
+            if (contractId <= 0)
+                return BadRequest("contractId must be bigger than 0.");
+
+            if (rentalId <= 0)
+                return BadRequest("rentalId must be bigger than 0.");
+
+            if (damageId <= 0)
                 return BadRequest("id must be bigger than 0.");
 
-            var result = await _service.DeleteAsync(id);
+            var result = await _service.DeleteAsync(contractId, rentalId, damageId);
             if (!result.Success)
                 return BadRequest(result.Message);
 

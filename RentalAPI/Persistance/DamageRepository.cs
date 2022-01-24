@@ -1,4 +1,5 @@
-﻿using RentalAPI.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using RentalAPI.Models;
 using RentalAPI.Persistance.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,13 @@ namespace RentalAPI.Persistance
         public DamageRepository(RentalDbContext context) : base(context)
         {
         }
-    }
+
+		virtual public async Task<IEnumerable<Damage>> ListAsync(int contractId, int rentalId)
+			=> await _table.Where(damage => damage.OccuredInRentalId == rentalId && damage.Rental.ContractId == contractId)
+						   .ToListAsync();
+		virtual public async Task<Damage> FindByIdAsync(int contractId, int rentalId, int damageId)
+			=> await _table.Where(damage => damage.OccuredInRentalId == rentalId &&
+											damage.Rental.ContractId == contractId &&
+											damage.Id == damageId).FirstOrDefaultAsync();
+	}
 }

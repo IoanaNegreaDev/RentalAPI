@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
-using RentalAPI.Services.Authentication;
 using RentalAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ namespace RentalAPI.Controllers
 {
     [ApiController]
     [Route("api/contracts")]
-   
     public class VehiclesRentalContractsController : Controller
     {
         private readonly IContractService _service;
@@ -42,7 +40,7 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetContractById")]
         [EnableQuery]
         public async Task<ActionResult<ContractDTO>> Get(int id)
         {
@@ -59,11 +57,14 @@ namespace RentalAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("VehicleAut")]
+        [HttpPost]
         public async Task<IActionResult> AddContract(int PaymentCurrencyId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
+
+            if (PaymentCurrencyId <= 0)
+                return BadRequest("PaymentCurrencyId should be bigger than 0.");
 
             var result = await _service.AddAsync(User.Identity.Name, PaymentCurrencyId);
             if (!result.Success)
@@ -71,10 +72,9 @@ namespace RentalAPI.Controllers
 
             var resultDTO = _mapper.Map<Contract, ContractDTO>(result._entity);
 
-            return CreatedAtAction(nameof(Get),
-                        ControllerContext.RouteData.Values["controller"].ToString(),
-                        new { id = resultDTO.Id },
-                        resultDTO);
+            return CreatedAtRoute("GetContractById",
+                                  new { id = resultDTO.Id },
+                                  resultDTO);
         }
 
         [HttpDelete]

@@ -10,8 +10,8 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220112072251_RemovedDomainFromRentable")]
-    partial class RemovedDomainFromRentable
+    [Migration("20220124134122_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -274,10 +274,15 @@ namespace RentalAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OccuredInRentalId")
+                        .HasColumnType("int");
+
                     b.Property<int>("RentableItemId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OccuredInRentalId");
 
                     b.HasIndex("RentableItemId");
 
@@ -424,28 +429,6 @@ namespace RentalAPI.Migrations
                     b.HasIndex("RentedItemId");
 
                     b.ToTable("Rentals");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.RentalDamage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("DamageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RentalId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DamageId");
-
-                    b.HasIndex("RentalId");
-
-                    b.ToTable("RentalDamages");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.RentalUser", b =>
@@ -782,6 +765,12 @@ namespace RentalAPI.Migrations
 
             modelBuilder.Entity("RentalAPI.Models.Damage", b =>
                 {
+                    b.HasOne("RentalAPI.Models.Rental", "Rental")
+                        .WithMany("RentalDamages")
+                        .HasForeignKey("OccuredInRentalId")
+                        .HasConstraintName("FK_Damages_Rentals")
+                        .IsRequired();
+
                     b.HasOne("RentalAPI.Models.Rentable", "Rentable")
                         .WithMany("Damages")
                         .HasForeignKey("RentableItemId")
@@ -789,6 +778,8 @@ namespace RentalAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Rentable");
+
+                    b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.RefreshToken", b =>
@@ -830,25 +821,6 @@ namespace RentalAPI.Migrations
                     b.Navigation("Contract");
 
                     b.Navigation("RentedItem");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.RentalDamage", b =>
-                {
-                    b.HasOne("RentalAPI.Models.Damage", "Damage")
-                        .WithMany("RentalDamages")
-                        .HasForeignKey("DamageId")
-                        .HasConstraintName("FK_RentalDamages_Damage")
-                        .IsRequired();
-
-                    b.HasOne("RentalAPI.Models.Rental", "Rental")
-                        .WithMany("RentalDamages")
-                        .HasForeignKey("RentalId")
-                        .HasConstraintName("FK_RentalDamages_Rentals")
-                        .IsRequired();
-
-                    b.Navigation("Damage");
-
-                    b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
@@ -917,11 +889,6 @@ namespace RentalAPI.Migrations
             modelBuilder.Entity("RentalAPI.Models.Currency", b =>
                 {
                     b.Navigation("Contracts");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.Damage", b =>
-                {
-                    b.Navigation("RentalDamages");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Domain", b =>

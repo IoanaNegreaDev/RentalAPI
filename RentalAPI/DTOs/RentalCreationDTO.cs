@@ -17,6 +17,6 @@ namespace RentalAPI.DTOs
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
-        public int ContractId { get; set; }
+       // public int ContractId { get; set; }
     }
 }
