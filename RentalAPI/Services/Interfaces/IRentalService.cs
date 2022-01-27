@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface IRentalService : IBaseRentalService<Rental>
+    public interface IRentalService : IBasicRentalService<Rental>
     {
     }
 }

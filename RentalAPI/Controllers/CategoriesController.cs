@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
-    [Authorize]
+    
     [ApiController]
     [Route("api/categories")]
     public class CategoriesController : Controller
@@ -23,6 +23,7 @@ namespace RentalAPI.Controllers
             _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()

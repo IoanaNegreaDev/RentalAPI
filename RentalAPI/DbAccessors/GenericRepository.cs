@@ -15,7 +15,7 @@ namespace RentalAPI.Persistance
 		public GenericRepository(RentalDbContext context)
 		{
 			_context = context;
-			_table = _context.Set<T>();			
+			_table = _context.Set<T>();
 		}
 
 		virtual public async Task<IEnumerable<T>> ListAsync()

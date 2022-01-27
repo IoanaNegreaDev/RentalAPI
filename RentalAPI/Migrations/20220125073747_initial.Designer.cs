@@ -10,8 +10,8 @@ using RentalAPI.Persistance;
 namespace RentalAPI.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    [Migration("20220124134122_Initial")]
-    partial class Initial
+    [Migration("20220125073747_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

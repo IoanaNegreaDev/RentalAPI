@@ -1,24 +1,20 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
 using RentalAPI.Services.Interfaces;
-using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/users")]
     public class AccountController : Controller
-    {
-       
+    { 
         private readonly IAccountService _service;
         private readonly IMapper _mapper;
         public AccountController(IAccountService service,
@@ -28,9 +24,9 @@ namespace RentalAPI.Controllers
             _service = service;
             _mapper = mapper;
         }
-
+        [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult> RegisterUser(UserRegistrationDTO userDTO)
+        public async Task<ActionResult> RegisterUser([FromBody] UserRegistrationDTO userDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -44,8 +40,9 @@ namespace RentalAPI.Controllers
             return Ok(result._entity);
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserLoginDTO userDTO)
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO userDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -70,7 +67,7 @@ namespace RentalAPI.Controllers
             
             return Ok();
         }
-
+        
         [HttpPost]
         [Route("RefreshToken")]
         public async Task<IActionResult> RefreshToken()

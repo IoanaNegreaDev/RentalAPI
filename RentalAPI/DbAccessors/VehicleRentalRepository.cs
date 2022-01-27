@@ -12,5 +12,7 @@ namespace RentalAPI.Persistance
 	{
 		public VehicleRentalRepository(RentalDbContext context) : base(context)
 		{ }
+
+
 	}
 }

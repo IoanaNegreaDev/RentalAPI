@@ -26,5 +26,18 @@ namespace RentalAPI.Persistance
 					.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
 					.Include(item => item.RentalDamages)
 					.ToListAsync();
+
+		virtual public async Task<Rental> FindByIdAsync(string userId, int contractId, int rentalId)
+		   => await _table.Where(item => item.Id == rentalId && item.ContractId == contractId && item.Contract.User.Id == userId)
+						.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
+						.Include(item => item.RentalDamages)
+						.FirstOrDefaultAsync();
+
+		virtual public async Task<IEnumerable<Rental>> ListAsync(string userId, int contractId)
+			=> await _table
+					.Where(rental => rental.ContractId == contractId && rental.Contract.User.Id == userId)
+					.Include(item => item.RentedItem).ThenInclude(item => item.Category).ThenInclude(item => item.Domain)
+					.Include(item => item.RentalDamages)
+					.ToListAsync();
 	}	
 }

@@ -10,5 +10,8 @@ namespace RentalAPI.Persistance.Interfaces
     {
         Task<Rental> FindByIdAsync(int contractId, int id);
         Task<IEnumerable<Rental>> ListAsync(int contractId);
+
+        Task<Rental> FindByIdAsync(string userId, int contractId, int id);
+        Task<IEnumerable<Rental>> ListAsync(string userId, int contractId);
     }
 }

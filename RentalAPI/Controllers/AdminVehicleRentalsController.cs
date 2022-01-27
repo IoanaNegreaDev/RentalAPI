@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -8,23 +9,27 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
-{   
+{
+    [Authorize(Roles = "Administrator")]
     [ApiController]
-    [Route("api/contracts/{contractId}/vehiclerentals")]
-    public class VehicleRentalsController : Controller
+    [Route("api/contracts/{contractId}/rentals/vehicles")]
+    public class AdminVehicleRentalsController : Controller
     {
+        private readonly IRentalService _rentalService;
         private readonly IVehicleRentalService _vehicleRentalService;
         private readonly IMapper _mapper;
-        public VehicleRentalsController(IVehicleRentalService vehicleRentalService,
-                                 IMapper mapper)
+        public AdminVehicleRentalsController(IRentalService rentalService,
+                                            IVehicleRentalService vehicleRentalService,
+                                            IMapper mapper)
         {
             _vehicleRentalService = vehicleRentalService;
+            _rentalService = rentalService;
             _mapper = mapper;
         }
-
+ 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<VehicleRental>>> Get(int contractId)
+        public async Task<ActionResult<IEnumerable<VehicleRental>>> Get([FromRoute] int contractId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -46,7 +51,7 @@ namespace RentalAPI.Controllers
 
         [HttpGet("{rentalId}")]
         [EnableQuery]
-        public async Task<ActionResult<VehicleRental>> Get(int contractId, int rentalId)
+        public async Task<ActionResult<VehicleRental>> Get([FromRoute] int contractId, [FromRoute] int rentalId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -69,32 +74,9 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(int contractId, RentalCreationDTO newRental)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            if (contractId <= 0)
-                return BadRequest("contractId must be bigger than 0.");
-
-            var rental = _mapper.Map<RentalCreationDTO, VehicleRental>(newRental);
-
-            var result = await _vehicleRentalService.AddAsync(contractId, rental);
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            var resultDTO = _mapper.Map<Rental, RentalDTO>(result._entity);
-
-            return CreatedAtAction(nameof(Get),
-                        ControllerContext.RouteData.Values["controller"].ToString(),
-                        new { id = resultDTO.Id },
-                        resultDTO);
-        }
-
-        [HttpPut]
+        [HttpPut("{rentalId}")]
         [EnableQuery]
-        public async Task<IActionResult> Update(int contractId, int rentalId, VehicleRentalUpdateDTO updateDTO)
+        public async Task<IActionResult> Update([FromRoute] int contractId, [FromRoute] int rentalId, [FromBody] VehicleRentalUpdateDTO updateDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -120,7 +102,7 @@ namespace RentalAPI.Controllers
 
         [HttpDelete("{rentalId}")]
         [EnableQuery]
-        public async Task<IActionResult> Delete(int contractId, int rentalId)
+        public async Task<IActionResult> Delete([FromRoute] int contractId, [FromRoute] int rentalId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

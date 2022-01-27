@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services
 {
-    public class RentalService: BaseRentalService<Rental, IRentalRepository>, IRentalService
+    public class RentalService: BasicRentalService<Rental, IRentalRepository>, IRentalService
     {
         public RentalService(IRentalRepository rentalRepository,
                                 IRentableRepository rentableRepository,

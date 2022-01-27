@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace RentalAPI.Services
 {
 
-    public class BaseRentalService<T, TRepository>: BasicService<Rental, IRentalRepository>, IBaseRentalService<T> 
+    public class BasicRentalService<T, TRepository>: BasicService<Rental, IRentalRepository>, IBasicRentalService<T> 
         where T : Rental
         where TRepository : IRentalRepository
     {
         protected readonly IRentableRepository _rentableRepository;
         protected readonly IContractRepository _contractRepository;
 
-        public BaseRentalService(TRepository rentalRepository,
+        public BasicRentalService(TRepository rentalRepository,
                         IRentableRepository rentableRepository,
                         IContractRepository contractRepository,
                         IUnitOfWork unitOfWork) : base(rentalRepository, unitOfWork)
@@ -25,11 +25,6 @@ namespace RentalAPI.Services
             _contractRepository = contractRepository;
         }
 
-       // public event EventHandler<EventArgs> RentalsChanged;
-       /* protected virtual void OnRentalsChanged()
-        {
-            RentalsChanged?.Invoke(this, null);
-        }*/
         virtual public async Task<DbOperationResponse<IEnumerable<T>>> ListAsync(int contractId)
         {
             var contract = await _contractRepository.FindByIdAsync(contractId);

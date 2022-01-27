@@ -14,6 +14,25 @@ namespace RentalAPI.Persistance
 		{
 		}
 
+		public async Task<Contract> FindByIdAsync(string userId, int id)
+			=> await _table
+			.Where(item => item.Id == id && item.User.Id == userId)
+			.Include(item => item.Rentals)
+				.ThenInclude(item => item.RentalDamages)
+			.Include(item => item.Rentals)
+				.ThenInclude(item => item.RentedItem)
+			.Include(item => item.Currency)
+			.FirstOrDefaultAsync();
+
+		override public async Task<Contract> FindByIdAsync(int id)
+			=> await _table
+					.Where(item => item.Id == id)
+					.Include(item => item.Rentals)
+						.ThenInclude(item => item.RentalDamages)
+					.Include(item => item.Rentals)
+						.ThenInclude(item => item.RentedItem)
+					.Include(item => item.Currency)
+					.FirstOrDefaultAsync();
 		override public async Task<IEnumerable<Contract>> ListAsync()
 			=> await _table
 					.Include(item => item.Rentals)
@@ -24,15 +43,18 @@ namespace RentalAPI.Persistance
 					.Include(item=>item.Currency)
 					.ToListAsync();
 
-		override public async Task<Contract> FindByIdAsync(int id)
+		public async Task<IEnumerable<Contract>> ListAsync(string userId)
 			=> await _table
-					.Where(item => item.Id == id)
+					.Where(contract => contract.User.Id == userId)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentalDamages)
 					.Include(item => item.Rentals)
 						.ThenInclude(item => item.RentedItem)
+					.Include(item => item.User)
 					.Include(item => item.Currency)
-				    .FirstOrDefaultAsync();
+					.ToListAsync();
+
+
 
 		public async Task RemoveAsync(Contract item)
 		{

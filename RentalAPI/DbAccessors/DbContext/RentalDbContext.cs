@@ -33,8 +33,6 @@ namespace RentalAPI.Persistance
         public virtual DbSet<Truck> Trucks { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<VehicleRental> VehicleRentals { get; set; }
-       // public virtual DbSet<User> Users { get; set; }
-
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -306,6 +304,9 @@ namespace RentalAPI.Persistance
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RefreshTokens_User");
             });
+
+
+
             base.OnModelCreating(modelBuilder);
         }
 

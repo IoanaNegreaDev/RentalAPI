@@ -13,11 +13,11 @@ namespace RentalAPI.Controllers
 {
     [ApiController]
     [Route("api/currencies")]
-    public class CurrencyController : Controller
+    public class CurrenciesController : Controller
     {
         private readonly ICurrencyService _service;
         private readonly IMapper _mapper;
-        public CurrencyController(ICurrencyService service, IMapper mapper)
+        public CurrenciesController(ICurrencyService service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;
@@ -39,17 +39,17 @@ namespace RentalAPI.Controllers
             return Ok(resultDTO);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{currencyId}")]
         [EnableQuery]
-        public async Task<ActionResult<CurrencyDTO>> Get(int id)
+        public async Task<ActionResult<CurrencyDTO>> Get(int currencyId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (id <= 0)
-                return BadRequest("id must be bigger than 0.");
+            if (currencyId <= 0)
+                return BadRequest("currencyId must be bigger than 0.");
 
-            var result = await _service.FindByIdAsync(id);
+            var result = await _service.FindByIdAsync(currencyId);
             if (result == null)
                 return NotFound();
 

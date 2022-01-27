@@ -15,9 +15,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RentalAPI.DbAccessors.SortingServices;
 using RentalAPI.Mapping;
 using RentalAPI.Models;
 using RentalAPI.Persistance;
+using RentalAPI.Persistance.DbSeed;
 using RentalAPI.Persistance.Interfaces;
 using RentalAPI.Services;
 using RentalAPI.Services.Interfaces;
@@ -68,9 +70,11 @@ namespace RentalAPI
 
             services.AddAuthorization(options =>
             {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                /*options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                         .RequireAuthenticatedUser()
-                        .Build();              
+                        .Build();*/
+                options.AddPolicy("IsAdministrator", policy => policy.RequireRole("Administrator"));
+                     
             }); 
                                      
             services.AddDbContext<RentalDbContext>(options =>
@@ -145,6 +149,9 @@ namespace RentalAPI
 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddTransient<IdentitySeeder>();
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

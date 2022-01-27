@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     [ApiController]
     [Route("/api/contracts/{contractId}/rentals/{rentalId}/damages")]
     public class DamagesController : Controller
@@ -24,7 +26,7 @@ namespace RentalAPI.Controllers
 
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<DamageDTO>>> Get(int contractId, int rentalId)
+        public async Task<ActionResult<IEnumerable<DamageDTO>>> Get([FromRoute]int contractId, [FromRoute] int rentalId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -48,9 +50,9 @@ namespace RentalAPI.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{damageId}")]
         [EnableQuery]
-        public async Task<ActionResult<ContractDTO>> Get(int contractId, int rentalId, int damageId)
+        public async Task<ActionResult<ContractDTO>> Get([FromRoute] int contractId, [FromRoute] int rentalId, [FromRoute] int damageId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -60,6 +62,9 @@ namespace RentalAPI.Controllers
 
             if (rentalId <= 0)
                 return BadRequest("rentalId must be bigger than 0.");
+
+            if (damageId <= 0)
+                return BadRequest("damageId must be bigger than 0.");
 
             var result = await _service.FindByIdAsync(contractId, rentalId, damageId);
             if (!result.Success)
@@ -74,7 +79,7 @@ namespace RentalAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(int contractId, int rentalId, DamageCreationDTO newDamageDTO)
+        public async Task<IActionResult> Add([FromRoute] int contractId, [FromRoute] int rentalId, [FromBody] DamageCreationDTO newDamageDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -99,9 +104,9 @@ namespace RentalAPI.Controllers
                                     resultDTO);
         }
 
-        [HttpDelete]
+        [HttpDelete("{damageId}")]
         [EnableQuery]
-        public async Task<IActionResult> Delete(int contractId, int rentalId, int damageId)
+        public async Task<IActionResult> Delete([FromRoute] int contractId, [FromRoute] int rentalId, [FromRoute] int damageId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -113,7 +118,7 @@ namespace RentalAPI.Controllers
                 return BadRequest("rentalId must be bigger than 0.");
 
             if (damageId <= 0)
-                return BadRequest("id must be bigger than 0.");
+                return BadRequest("damageId must be bigger than 0.");
 
             var result = await _service.DeleteAsync(contractId, rentalId, damageId);
             if (!result.Success)

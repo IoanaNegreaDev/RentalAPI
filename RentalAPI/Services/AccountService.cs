@@ -54,15 +54,16 @@ namespace RentalAPI.Services
             dbUser = new RentalUser()
             {
                 UserName = credentials.UserName,
-                PhoneNumber = credentials.PhoneNumber
+                PhoneNumber = credentials.PhoneNumber                     
             };
 
             try
             {
                 var result = await _userManager.CreateAsync(dbUser, credentials.Password);
-
                 if (!result.Succeeded)
                     return new DbOperationResponse<IdentityResult>("Failed to register. " + result.Errors);
+
+                await _userManager.AddToRoleAsync(dbUser, "NormalUser");
 
                 return new DbOperationResponse<IdentityResult>(result);
             }
@@ -99,14 +100,12 @@ namespace RentalAPI.Services
         {
             var user = await _repository.GetUserWithTokenAsync(refreshToken);
 
-            // Get existing refresh token if it is valid and revoke it
-            var existingRefreshToken = GetValidRefreshToken(refreshToken, user);
+           var existingRefreshToken = GetValidRefreshToken(refreshToken, user);
             if (existingRefreshToken == null)
                 return new DbOperationResponse<UserWithToken>("Failed to get a valid refresh token.");
          
             existingRefreshToken.RevokedOn = DateTime.UtcNow;
 
-            // Generate new tokens
            return await GenerateTokensAsync(user);
         }
 
@@ -128,7 +127,7 @@ namespace RentalAPI.Services
                 return new DbOperationResponse<UserWithToken>("Internal error. Invalid user pointer. ");
 
             RefreshToken refreshToken = GenerateRefreshToken();
-            var accessToken = GenerateAccessToken(user);
+            var accessToken = await GenerateAccessTokenAsync(user);
 
             try
             {
@@ -167,18 +166,12 @@ namespace RentalAPI.Services
             return refreshToken;
         }
 
-        private string GenerateAccessToken(RentalUser user)
+        private async Task<string> GenerateAccessTokenAsync(RentalUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("Id", Convert.ToString(user.Id)),
-                    new Claim("PhoneNumber", user.PhoneNumber),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                }),
+                Subject = new ClaimsIdentity(await GetAllValidClaims(user)),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Issuer = _issuer,
                 Audience = _audience,
@@ -189,6 +182,34 @@ namespace RentalAPI.Services
             return tokenHandler.WriteToken(token);
         }
 
+        private async Task<List<Claim>> GetAllValidClaims(RentalUser user)
+        {
+            var options = new IdentityOptions();
+
+            var claimsList = new List<Claim>{
+                                new Claim(ClaimTypes.Name, user.Id),
+                                new Claim("PhoneNumber", user.PhoneNumber),
+                                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                                };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claimsList.AddRange(userClaims);    
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                claimsList.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _userManager.FindByNameAsync(userRole);
+                if (role != null)
+                {
+                    var roleClaims = await _userManager.GetClaimsAsync(role);
+                    foreach (var claim in roleClaims)
+                        claimsList.Add(claim);
+                }
+            }
+            return claimsList;
+        }
         private async Task<bool> RevokeRefreshToken(string token)
         {
             var identityUser = await _repository.GetUserWithTokenAsync(token);

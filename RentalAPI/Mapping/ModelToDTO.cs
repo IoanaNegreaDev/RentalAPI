@@ -36,6 +36,7 @@ namespace RentalAPI.Mapping
             CreateMap<Currency, CurrencyDTO>();
 
             CreateMap<ContractCreationDTO, Contract>();
+            CreateMap<ContractUpdateDTO, Contract>();
             CreateMap<Contract, ContractDTO>()
                 .ForMember(dest => dest.TotalBasePriceInPaymentCurrency, 
                             opt => opt.MapFrom(new TotalBasePriceResolver())) 

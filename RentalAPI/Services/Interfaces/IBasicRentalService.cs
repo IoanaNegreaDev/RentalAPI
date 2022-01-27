@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface IBaseRentalService<T> where T : class
+    public interface IBasicRentalService<T> where T : class
     {
         Task<DbOperationResponse<IEnumerable<T>>> ListAsync(int contractId);
         Task<DbOperationResponse<T>> FindByIdAsync(int contractId, int id);

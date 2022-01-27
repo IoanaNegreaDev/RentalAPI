@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalAPI.DTOs;
 using RentalAPI.Models;
@@ -9,13 +10,14 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     [ApiController]
     [Route("api/contracts/{contractId}/rentals")]
-    public class RentalsController : Controller
+    public class AdminRentalsController : Controller
     {
         private readonly IRentalService _rentalService;
         private readonly IMapper _mapper;
-        public RentalsController(IRentalService rentalService,
+        public AdminRentalsController(IRentalService rentalService,
                                         IMapper mapper)
         {
             _rentalService = rentalService;
