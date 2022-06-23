@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace RentalAPI.Services
 {
   
-    public class CategoryService : BaseService<Category, ICategoryRepository>, ICategoryService
+    public class CategoryService : BasicService<Category, ICategoryRepository>, ICategoryService
     {
         public CategoryService(ICategoryRepository repository, IUnitOfWork unitOfWork) 
             : base(repository, unitOfWork)

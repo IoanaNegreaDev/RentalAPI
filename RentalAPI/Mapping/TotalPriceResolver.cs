@@ -15,7 +15,7 @@ namespace RentalAPI.Mapping
             var basePrice = source.Rentals.Sum(item => item.BasePrice) * source.ExchangeRate;
 
             var damage = source.Rentals.Sum(item => (float)(item.RentalDamages
-                            .Sum(item => item.Damage.DamageCost))) * source.ExchangeRate;
+                            .Sum(item => item.DamageCost))) * source.ExchangeRate;
 
             var fullTank = source.Rentals.Where(item => item.GetType() == typeof(VehicleRental) &&
                           ((VehicleRental)item).FullTank == false)

@@ -20,6 +20,137 @@ namespace RentalAPI.Migrations
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens");
+                });
+
             modelBuilder.Entity("RentalAPI.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -61,35 +192,12 @@ namespace RentalAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.Client", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Mobile")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Clients");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Contract", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -100,11 +208,14 @@ namespace RentalAPI.Migrations
                     b.Property<int>("PaymentCurrencyId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
-
                     b.HasIndex("PaymentCurrencyId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Contracts");
                 });
@@ -161,10 +272,15 @@ namespace RentalAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OccuredInRentalId")
+                        .HasColumnType("int");
+
                     b.Property<int>("RentableItemId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OccuredInRentalId");
 
                     b.HasIndex("RentableItemId");
 
@@ -240,18 +356,24 @@ namespace RentalAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RentalUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("RevokedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RentalUserId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -266,17 +388,12 @@ namespace RentalAPI.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DomainId")
-                        .HasColumnType("int");
-
                     b.Property<float>("PricePerDay")
                         .HasColumnType("real");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("DomainId");
 
                     b.ToTable("Rentables");
                 });
@@ -312,52 +429,69 @@ namespace RentalAPI.Migrations
                     b.ToTable("Rentals");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.RentalDamage", b =>
+            modelBuilder.Entity("RentalAPI.Models.RentalUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("DamageId")
+                    b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("RentalId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DamageId");
-
-                    b.HasIndex("RentalId");
-
-                    b.ToTable("RentalDamages");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Password")
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Password = "Administrator",
-                            UserName = "Administrator"
-                        });
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
@@ -548,6 +682,57 @@ namespace RentalAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("RentalAPI.Models.RentalUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("RentalAPI.Models.RentalUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RentalAPI.Models.RentalUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("RentalAPI.Models.RentalUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RentalAPI.Models.Category", b =>
                 {
                     b.HasOne("RentalAPI.Models.Domain", "Domain")
@@ -561,25 +746,29 @@ namespace RentalAPI.Migrations
 
             modelBuilder.Entity("RentalAPI.Models.Contract", b =>
                 {
-                    b.HasOne("RentalAPI.Models.Client", "Client")
-                        .WithMany("Contracts")
-                        .HasForeignKey("ClientId")
-                        .HasConstraintName("FK_Contracts_Clients")
-                        .IsRequired();
-
                     b.HasOne("RentalAPI.Models.Currency", "Currency")
                         .WithMany("Contracts")
                         .HasForeignKey("PaymentCurrencyId")
                         .HasConstraintName("FK_Contracts_Currencies")
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.HasOne("RentalAPI.Models.RentalUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Currency");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Damage", b =>
                 {
+                    b.HasOne("RentalAPI.Models.Rental", "Rental")
+                        .WithMany("RentalDamages")
+                        .HasForeignKey("OccuredInRentalId")
+                        .HasConstraintName("FK_Damages_Rentals")
+                        .IsRequired();
+
                     b.HasOne("RentalAPI.Models.Rentable", "Rentable")
                         .WithMany("Damages")
                         .HasForeignKey("RentableItemId")
@@ -587,15 +776,16 @@ namespace RentalAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Rentable");
+
+                    b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.RefreshToken", b =>
                 {
-                    b.HasOne("RentalAPI.Models.User", "User")
+                    b.HasOne("RentalAPI.Models.RentalUser", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_RefreshTokens_User")
-                        .IsRequired();
+                        .HasForeignKey("RentalUserId")
+                        .HasConstraintName("FK_RefreshTokens_User");
 
                     b.Navigation("User");
                 });
@@ -607,10 +797,6 @@ namespace RentalAPI.Migrations
                         .HasForeignKey("CategoryId")
                         .HasConstraintName("FK_Rentables_Categories")
                         .IsRequired();
-
-                    b.HasOne("RentalAPI.Models.Domain", null)
-                        .WithMany("Rentables")
-                        .HasForeignKey("DomainId");
 
                     b.Navigation("Category");
                 });
@@ -633,25 +819,6 @@ namespace RentalAPI.Migrations
                     b.Navigation("Contract");
 
                     b.Navigation("RentedItem");
-                });
-
-            modelBuilder.Entity("RentalAPI.Models.RentalDamage", b =>
-                {
-                    b.HasOne("RentalAPI.Models.Damage", "Damage")
-                        .WithMany("RentalDamages")
-                        .HasForeignKey("DamageId")
-                        .HasConstraintName("FK_RentalDamages_Damage")
-                        .IsRequired();
-
-                    b.HasOne("RentalAPI.Models.Rental", "Rental")
-                        .WithMany("RentalDamages")
-                        .HasForeignKey("RentalId")
-                        .HasConstraintName("FK_RentalDamages_Rentals")
-                        .IsRequired();
-
-                    b.Navigation("Damage");
-
-                    b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Vehicle", b =>
@@ -712,11 +879,6 @@ namespace RentalAPI.Migrations
                     b.Navigation("Rentables");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.Client", b =>
-                {
-                    b.Navigation("Contracts");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Contract", b =>
                 {
                     b.Navigation("Rentals");
@@ -727,16 +889,9 @@ namespace RentalAPI.Migrations
                     b.Navigation("Contracts");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.Damage", b =>
-                {
-                    b.Navigation("RentalDamages");
-                });
-
             modelBuilder.Entity("RentalAPI.Models.Domain", b =>
                 {
                     b.Navigation("Categories");
-
-                    b.Navigation("Rentables");
                 });
 
             modelBuilder.Entity("RentalAPI.Models.Fuel", b =>
@@ -756,7 +911,7 @@ namespace RentalAPI.Migrations
                     b.Navigation("RentalDamages");
                 });
 
-            modelBuilder.Entity("RentalAPI.Models.User", b =>
+            modelBuilder.Entity("RentalAPI.Models.RentalUser", b =>
                 {
                     b.Navigation("RefreshTokens");
                 });

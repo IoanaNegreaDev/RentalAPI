@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Authentication
 {
-    public class UserWithToken : User
+   public class UserWithToken : RentalUser
     {
-        public UserWithToken(User user)
+        public UserWithToken(RentalUser user)
         {
             this.Id = user.Id;
             this.UserName = user.UserName;
-            this.Password = user.Password;
+       //     this.Password = user.Password;
         }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

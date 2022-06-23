@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RentalAPI.Services.Interfaces
 {
-    public interface ICurrencyService: IBaseService<Currency>
+    public interface ICurrencyService: IBasicService<Currency>
     {
         public Task<Currency> FindByNameAsync(string name);
         public Task<Currency> GetDefaultAsync();

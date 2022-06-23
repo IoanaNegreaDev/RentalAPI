@@ -9,10 +9,11 @@ namespace RentalAPI.Models
     {
         public int Id { get; set; }
         public int RentableItemId { get; set; }
+        public int OccuredInRentalId { get; set; }
         public string DamageDescription { get; set; }
         public float DamageCost { get; set; }
 
         public virtual Rentable Rentable { get; set; }
-        public virtual ICollection<RentalDamage> RentalDamages { get; set; } = new HashSet<RentalDamage>();
+        public virtual Rental Rental { get; set; }
     }
 }
